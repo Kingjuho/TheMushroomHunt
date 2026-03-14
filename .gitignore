@@ -98,6 +98,10 @@ InitTestScene*.unity*
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
+# AI Agent
+.dotnet-home
+AGENTS.md
+
 # External Asset
 /[Aa]ssets/ThirdParty/
 /[Aa]ssets/ThirdParty.meta
