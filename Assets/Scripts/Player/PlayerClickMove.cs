@@ -14,11 +14,11 @@ public class PlayerClickMove : MonoBehaviour
     [Header("NavMesh")]
     [SerializeField] private float navMeshSampleDistance = 1.5f;
 
-    private NavMeshAgent agent;
+    private NavMeshAgent _agent;
 
     private void Awake()
     {
-        agent = GetComponent<NavMeshAgent>();
+        _agent = GetComponent<NavMeshAgent>();
 
         if (mainCamera == null)
         {
@@ -53,6 +53,6 @@ public class PlayerClickMove : MonoBehaviour
             return;
         }
 
-        agent.SetDestination(navMeshHit.position);
+        _agent.SetDestination(navMeshHit.position);
     }
 }
