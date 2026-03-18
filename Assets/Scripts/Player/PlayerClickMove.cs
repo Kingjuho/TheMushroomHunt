@@ -72,6 +72,11 @@ public class PlayerClickMove : MonoBehaviour
 
         if (mushroom != null)
         {
+            if (!mushroom.IsHarvestable)
+            {
+                return;
+            }
+
             MoveToMushroom(mushroom);
             return;
         }

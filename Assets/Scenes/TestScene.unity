@@ -2077,6 +2077,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Mushroom
   interactionPoint: {fileID: 0}
   interactionRadius: 1.2
+  maxHp: 50
+  respawnDelay: 0.1
 --- !u!1001 &737612074
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4755,7 +4757,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHarvestController
   clickMove: {fileID: 1072294777}
-  harvestStateDuration: 0.8
+  attackPower: 10
+  attacksPerSecond: 1
   currentState: 0
 --- !u!1 &1094831312
 GameObject:

@@ -6,21 +6,21 @@ public class PlayerHarvestController : MonoBehaviour
     [Header("References")]
     [SerializeField] private PlayerClickMove clickMove;
 
-    [Header("Harvest")]
-    [SerializeField] private float harvestStateDuration = 0.8f;
+    [Header("Combat")]
+    [SerializeField] private int attackPower = 10;
+    [SerializeField] private float attacksPerSecond = 1.0f;
 
-    // 아직 정식 상태머신은 아니지만,
-    // 현재 상태를 Inspector에서 바로 볼 수 있게 단순 enum으로 둡니다.
+    [Header("Debug")]
     [SerializeField] private HarvestState currentState = HarvestState.Idle;
 
     private Mushroom _currentHarvestTarget;
-    private float _harvestTimer;
+    private float _attackTimer;
 
     private enum HarvestState
     {
         Idle,
         MovingToTarget,
-        Harvesting
+        Attacking
     }
 
     private void Awake()
@@ -38,9 +38,9 @@ public class PlayerHarvestController : MonoBehaviour
             return;
         }
 
-        if (currentState == HarvestState.Harvesting)
+        if (currentState == HarvestState.Attacking)
         {
-            UpdateHarvesting();
+            UpdateAttacking();
             return;
         }
 
@@ -52,6 +52,13 @@ public class PlayerHarvestController : MonoBehaviour
             return;
         }
 
+        if (!targetMushroom.IsHarvestable)
+        {
+            clickMove.ClearTargetMushroom();
+            currentState = HarvestState.Idle;
+            return;
+        }
+
         currentState = HarvestState.MovingToTarget;
 
         if (!clickMove.HasReachedMushroom(targetMushroom))
@@ -59,46 +66,65 @@ public class PlayerHarvestController : MonoBehaviour
             return;
         }
 
-        BeginHarvest(targetMushroom);
+        BeginAttack(targetMushroom);
     }
 
-    private void BeginHarvest(Mushroom mushroom)
+    private void BeginAttack(Mushroom mushroom)
     {
         _currentHarvestTarget = mushroom;
-        _harvestTimer = harvestStateDuration;
-        currentState = HarvestState.Harvesting;
+        _attackTimer = 0f;
+        currentState = HarvestState.Attacking;
 
-        // 채집이 시작되면 이동을 끊고, 우클릭 입력도 잠급니다.
+        // 공격 시작 시 경로를 끊고 입력을 잠가,
+        // 우클릭 연타로 대상이 흔들리지 않게 합니다.
         clickMove.StopImmediately();
         clickMove.ClearTargetMushroom();
         clickMove.InputLocked = true;
 
-        Debug.Log($"Harvest started: {mushroom.name}");
+        Debug.Log($"Attack started: {mushroom.name}");
     }
 
-    private void UpdateHarvesting()
+    private void UpdateAttacking()
     {
         if (_currentHarvestTarget == null)
         {
-            EndHarvest();
+            EndAttack();
             return;
         }
 
-        _harvestTimer -= Time.deltaTime;
+        if (!_currentHarvestTarget.IsHarvestable)
+        {
+            EndAttack();
+            return;
+        }
 
-        if (_harvestTimer > 0f)
+        float attackInterval = 1f / Mathf.Max(0.01f, attacksPerSecond);
+        _attackTimer += Time.deltaTime;
+
+        if (_attackTimer < attackInterval)
+        {
+            return;
+        }
+
+        _attackTimer -= attackInterval;
+
+        bool wasHarvested = _currentHarvestTarget.TryTakeDamage(attackPower);
+
+        Debug.Log(
+            $"Hit mushroom: {_currentHarvestTarget.name}, " +
+            $"damage: {attackPower}, " +
+            $"hp: {_currentHarvestTarget.CurrentHp}/{_currentHarvestTarget.MaxHp}");
+
+        if (!wasHarvested)
         {
             return;
         }
 
         Debug.Log($"Harvest finished: {_currentHarvestTarget.name}");
-
-        // 아직 진짜 채집 결과 처리 전 단계이므로,
-        // 상태 전환까지만 하고 대상은 그대로 둡니다.
-        EndHarvest();
+        EndAttack();
     }
 
-    private void EndHarvest()
+    private void EndAttack()
     {
         _currentHarvestTarget = null;
         currentState = HarvestState.Idle;
