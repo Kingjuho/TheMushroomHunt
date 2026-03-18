@@ -2915,6 +2915,11 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0.61300004, z: 0}
   m_TimeToStationary: 0.5
+--- !u!4 &874713146 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3496927326220384762, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
+  m_PrefabInstance: {fileID: 1072294774}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &880413359
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4607,7 +4612,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3496927326220384762, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1881497632}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
       insertIndex: -1
@@ -4757,6 +4765,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHarvestController
   clickMove: {fileID: 1072294777}
+  animationController: {fileID: 1072294783}
   attackPower: 10
   attacksPerSecond: 1
   currentState: 0
@@ -6584,6 +6593,38 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0.61300004, z: 0}
   m_TimeToStationary: 0.5
+--- !u!1 &1881497631
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1881497632}
+  m_Layer: 0
+  m_Name: ToolSocket
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1881497632
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1881497631}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1991412654}
+  m_Father: {fileID: 874713146}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1886641962
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6686,6 +6727,68 @@ NavMeshObstacle:
   m_CarveOnlyStationary: 1
   m_Center: {x: 0, y: 0.61300004, z: 0}
   m_TimeToStationary: 0.5
+--- !u!1001 &1991412653
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1881497632}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.054
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.109
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.203
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.50000334
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.4999989
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.49999645
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.5000013
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 90
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+      propertyPath: m_Name
+      value: PickAxeV1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+--- !u!4 &1991412654 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 96a59df2b5e24064d925b9f617997260, type: 3}
+  m_PrefabInstance: {fileID: 1991412653}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2026902608
 PrefabInstance:
   m_ObjectHideFlags: 0

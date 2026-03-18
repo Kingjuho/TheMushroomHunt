@@ -5,6 +5,7 @@ public class PlayerHarvestController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private PlayerClickMove clickMove;
+    [SerializeField] private PlayerAnimationController animationController;
 
     [Header("Combat")]
     [SerializeField] private int attackPower = 10;
@@ -28,6 +29,11 @@ public class PlayerHarvestController : MonoBehaviour
         if (clickMove == null)
         {
             clickMove = GetComponent<PlayerClickMove>();
+        }
+
+        if (animationController == null)
+        {
+            animationController = GetComponent<PlayerAnimationController>();
         }
     }
 
@@ -75,8 +81,6 @@ public class PlayerHarvestController : MonoBehaviour
         _attackTimer = 0f;
         currentState = HarvestState.Attacking;
 
-        // 공격 시작 시 경로를 끊고 입력을 잠가,
-        // 우클릭 연타로 대상이 흔들리지 않게 합니다.
         clickMove.StopImmediately();
         clickMove.ClearTargetMushroom();
         clickMove.InputLocked = true;
@@ -107,6 +111,12 @@ public class PlayerHarvestController : MonoBehaviour
         }
 
         _attackTimer -= attackInterval;
+
+        // 실제 공격 판정이 나는 틱에 맞춰 공격 애니메이션도 같이 재생합니다.
+        if (animationController != null)
+        {
+            animationController.PlayAttack();
+        }
 
         bool wasHarvested = _currentHarvestTarget.TryTakeDamage(attackPower);
 
