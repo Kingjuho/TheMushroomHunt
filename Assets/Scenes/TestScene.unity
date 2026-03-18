@@ -1989,6 +1989,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: amanita_muscaria_1
       objectReference: {fileID: 0}
+    - target: {fileID: 3464809726442396204, guid: 4aa44f5d8ccf942409375ed4d405c462, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 4278044412499099798, guid: 4aa44f5d8ccf942409375ed4d405c462, type: 3}
       propertyPath: m_LocalScale.x
       value: 5
@@ -2072,7 +2076,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Mushroom
   interactionPoint: {fileID: 0}
-  interactionRadius: 1
+  interactionRadius: 1.2
 --- !u!1001 &737612074
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4614,7 +4618,13 @@ PrefabInstance:
       addedObject: {fileID: 1072294783}
     - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1072294785}
+    - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 1072294776}
+    - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1072294784}
   m_SourcePrefab: {fileID: 100100000, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
 --- !u!1 &1072294775 stripped
 GameObject:
@@ -4664,6 +4674,7 @@ MonoBehaviour:
     m_Bits: 128
   maxRayDistance: 500
   navMeshSampleDistance: 1.5
+  extraMushroomStopDistance: 0.15
 --- !u!4 &1072294778 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7644792217676503488, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
@@ -4708,6 +4719,44 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationController
   animator: {fileID: 1072294781}
   moveSpeedDampTime: 0.1
+--- !u!136 &1072294784
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1072294775}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.4
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &1072294785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1072294775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 163874c551726a047b636c956c35c6de, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHarvestController
+  clickMove: {fileID: 1072294777}
+  harvestStateDuration: 0.8
+  currentState: 0
 --- !u!1 &1094831312
 GameObject:
   m_ObjectHideFlags: 0
