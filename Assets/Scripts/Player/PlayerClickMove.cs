@@ -28,13 +28,18 @@ public class PlayerClickMove : MonoBehaviour
 
     private void Update()
     {
-        // 1차 구현에서는 우클릭 이동만 처리합니다.
+        // 현재 단계에서는 우클릭 이동만 처리합니다.
         if (!Input.GetMouseButtonDown(1))
         {
             return;
         }
 
         if (mainCamera == null)
+        {
+            return;
+        }
+
+        if (!_agent.enabled || !_agent.isOnNavMesh)
         {
             return;
         }
@@ -47,7 +52,7 @@ public class PlayerClickMove : MonoBehaviour
             return;
         }
 
-        // 클릭한 지점이 NavMesh 가장자리이거나 살짝 벗어나도 가까운 유효 지점을 찾도록 보정합니다.
+        // 클릭 지점이 NavMesh 경계에 걸쳐 있어도 가장 가까운 유효 위치를 찾습니다.
         if (!NavMesh.SamplePosition(hit.point, out NavMeshHit navMeshHit, navMeshSampleDistance, NavMesh.AllAreas))
         {
             return;
