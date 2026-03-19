@@ -43,15 +43,14 @@ public class PlayerAnimationController : MonoBehaviour
         {
             Vector3 planarVelocity = _agent.velocity;
             planarVelocity.y = 0f;
-
             normalizedSpeed = Mathf.Clamp01(planarVelocity.magnitude / _agent.speed);
         }
 
         animator.SetFloat(MoveSpeedHash, normalizedSpeed, moveSpeedDampTime, Time.deltaTime);
     }
 
-    // 공격 틱이 발생할 때 HarvestController가 호출합니다.
-    // Trigger를 재설정한 뒤 다시 넣어 주면 연속 공격에서 누락될 가능성을 줄일 수 있습니다.
+    // 공격 시작 시점에만 호출합니다.
+    // 실제 피해 적용은 Animation Event에서 처리합니다.
     public void PlayAttack()
     {
         if (animator == null)

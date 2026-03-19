@@ -10,12 +10,15 @@ public class PlayerHarvestController : MonoBehaviour
     [Header("Combat")]
     [SerializeField] private int attackPower = 10;
     [SerializeField] private float attacksPerSecond = 1.0f;
+    [SerializeField] private float attackRotationSpeed = 720f;
 
     [Header("Debug")]
     [SerializeField] private HarvestState currentState = HarvestState.Idle;
 
     private Mushroom _currentHarvestTarget;
-    private float _attackTimer;
+    private float _attackCooldownTimer;
+    private bool _isAttackAnimationPlaying;
+    private bool _hasPendingImpact;
 
     private enum HarvestState
     {
@@ -78,14 +81,14 @@ public class PlayerHarvestController : MonoBehaviour
     private void BeginAttack(Mushroom mushroom)
     {
         _currentHarvestTarget = mushroom;
-        _attackTimer = 0f;
+        _attackCooldownTimer = 0f;
+        _isAttackAnimationPlaying = false;
+        _hasPendingImpact = false;
         currentState = HarvestState.Attacking;
 
         clickMove.StopImmediately();
         clickMove.ClearTargetMushroom();
         clickMove.InputLocked = true;
-
-        Debug.Log($"Attack started: {mushroom.name}");
     }
 
     private void UpdateAttacking()
@@ -102,20 +105,73 @@ public class PlayerHarvestController : MonoBehaviour
             return;
         }
 
-        float attackInterval = 1f / Mathf.Max(0.01f, attacksPerSecond);
-        _attackTimer += Time.deltaTime;
+        FaceCurrentTarget();
 
-        if (_attackTimer < attackInterval)
+        _attackCooldownTimer -= Time.deltaTime;
+
+        // 쿨다운이 끝났고 현재 공격 모션이 비어 있을 때만 새 공격을 시작합니다.
+        if (_attackCooldownTimer > 0f || _isAttackAnimationPlaying)
         {
             return;
         }
 
-        _attackTimer -= attackInterval;
+        StartAttackSwing();
+    }
 
-        // 실제 공격 판정이 나는 틱에 맞춰 공격 애니메이션도 같이 재생합니다.
+    private void StartAttackSwing()
+    {
+        _isAttackAnimationPlaying = true;
+        _hasPendingImpact = true;
+        _attackCooldownTimer = 1f / Mathf.Max(0.01f, attacksPerSecond);
+
         if (animationController != null)
         {
             animationController.PlayAttack();
+        }
+    }
+
+    private void FaceCurrentTarget()
+    {
+        if (_currentHarvestTarget == null)
+        {
+            return;
+        }
+
+        Vector3 direction = _currentHarvestTarget.InteractionPosition - transform.position;
+        direction.y = 0f;
+
+        if (direction.sqrMagnitude < 0.0001f)
+        {
+            return;
+        }
+
+        Quaternion targetRotation = Quaternion.LookRotation(direction.normalized, Vector3.up);
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            targetRotation,
+            attackRotationSpeed * Time.deltaTime);
+    }
+
+    // Animation Event에서 호출됩니다.
+    // 실제 피해 적용은 여기서만 수행합니다.
+    public void OnAttackImpactAnimationEvent()
+    {
+        if (currentState != HarvestState.Attacking)
+        {
+            return;
+        }
+
+        if (!_hasPendingImpact)
+        {
+            return;
+        }
+
+        _hasPendingImpact = false;
+
+        if (_currentHarvestTarget == null || !_currentHarvestTarget.IsHarvestable)
+        {
+            EndAttack();
+            return;
         }
 
         bool wasHarvested = _currentHarvestTarget.TryTakeDamage(attackPower);
@@ -125,18 +181,24 @@ public class PlayerHarvestController : MonoBehaviour
             $"damage: {attackPower}, " +
             $"hp: {_currentHarvestTarget.CurrentHp}/{_currentHarvestTarget.MaxHp}");
 
-        if (!wasHarvested)
+        if (wasHarvested)
         {
-            return;
+            Debug.Log($"Harvest finished: {_currentHarvestTarget.name}");
+            EndAttack();
         }
+    }
 
-        Debug.Log($"Harvest finished: {_currentHarvestTarget.name}");
-        EndAttack();
+    // Attack 클립 끝에서 호출됩니다.
+    public void OnAttackAnimationFinishedEvent()
+    {
+        _isAttackAnimationPlaying = false;
     }
 
     private void EndAttack()
     {
         _currentHarvestTarget = null;
+        _isAttackAnimationPlaying = false;
+        _hasPendingImpact = false;
         currentState = HarvestState.Idle;
         clickMove.InputLocked = false;
     }

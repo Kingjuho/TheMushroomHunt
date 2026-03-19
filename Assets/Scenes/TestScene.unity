@@ -4628,6 +4628,9 @@ PrefabInstance:
       addedObject: {fileID: 1072294783}
     - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1072294786}
+    - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 1072294785}
     - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
       insertIndex: -1
@@ -4768,7 +4771,21 @@ MonoBehaviour:
   animationController: {fileID: 1072294783}
   attackPower: 10
   attacksPerSecond: 1
+  attackRotationSpeed: 720
   currentState: 0
+--- !u!114 &1072294786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1072294775}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd9805a70dd985c4c9dc837b029e1f0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationEventRelay
+  harvestController: {fileID: 1072294785}
 --- !u!1 &1094831312
 GameObject:
   m_ObjectHideFlags: 0
