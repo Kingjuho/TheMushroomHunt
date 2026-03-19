@@ -39,6 +39,13 @@ public class PlayerHarvestController : MonoBehaviour
         {
             animationController = GetComponent<PlayerAnimationController>();
         }
+
+        ApplyCurrentAttackAnimationSpeed();
+    }
+
+    private void OnValidate()
+    {
+        attacksPerSecond = Mathf.Max(0.01f, attacksPerSecond);
     }
 
     private void Update()
@@ -53,6 +60,20 @@ public class PlayerHarvestController : MonoBehaviour
         }
 
         TryEnterAttackState();
+    }
+
+    /// <summary>
+    /// 현재 공격속도 수치를 애니메이션 컨트롤러에 반영
+    /// 공격속도 강화가 나중에 추가되더라도 이 메서드만 다시 호출하면 됨
+    /// </summary>
+    private void ApplyCurrentAttackAnimationSpeed()
+    {
+        if (animationController == null)
+        {
+            return;
+        }
+
+        animationController.SetAttackAnimationSpeedMultiplier(attacksPerSecond);
     }
 
     /// <summary>
@@ -100,6 +121,8 @@ public class PlayerHarvestController : MonoBehaviour
         _hasPendingImpact = false;
         currentState = HarvestState.Attacking;
 
+        // 공격 상태에 들어오는 시점에 현재 공격속도를 애니메이션에도 반영
+        ApplyCurrentAttackAnimationSpeed();
         clickMove.StopImmediately();
     }
 
@@ -108,6 +131,9 @@ public class PlayerHarvestController : MonoBehaviour
     /// </summary>
     private void UpdateAttacking()
     {
+        // 종료 이벤트가 누락되었어도 Animator 상태를 확인하여 복구
+        SyncAttackAnimationState();
+
         // 공격을 할 수 없는 상태일 경우 중단
         if (!CanContinueAttacking())
         {
@@ -164,8 +190,13 @@ public class PlayerHarvestController : MonoBehaviour
 
         // 공격 속도에 맞춰 쿨타임을 다시 세팅
         _attackCooldownTimer = 1f / Mathf.Max(0.01f, attacksPerSecond);
+
         // 공격 중엔 인풋락
         clickMove.InputLocked = true;
+
+        // 공격속도 값이 런타임 중 바뀔 수 있으므로,
+        // 매 스윙 시작 시점에도 애니메이션 속도를 다시 맞춰줌
+        ApplyCurrentAttackAnimationSpeed();
 
         if (animationController != null)
         {
@@ -240,8 +271,7 @@ public class PlayerHarvestController : MonoBehaviour
     /// </summary>
     public void OnAttackAnimationFinishedEvent()
     {
-        _isAttackAnimationPlaying = false;
-        clickMove.InputLocked = false;
+        ReleaseAttackLock();
     }
 
     /// <summary>
@@ -251,6 +281,7 @@ public class PlayerHarvestController : MonoBehaviour
     {
         EndAttack(true);
     }
+
     private void EndAttack(bool clearClickTarget)
     {
         _currentHarvestTarget = null;
@@ -263,5 +294,38 @@ public class PlayerHarvestController : MonoBehaviour
         {
             clickMove.ClearTargetMushroom();
         }
+    }
+
+    /// <summary>
+    /// Attack 종료 이벤트가 누락되더라도
+    /// Animator가 이미 Attack 상태를 벗어났다면 입력 잠금과 상태값을 풀어줌
+    /// </summary>
+    private void SyncAttackAnimationState()
+    {
+        if (!_isAttackAnimationPlaying)
+        {
+            return;
+        }
+
+        if (animationController == null)
+        {
+            return;
+        }
+
+        if (animationController.IsPlayingAttackState())
+        {
+            return;
+        }
+
+        ReleaseAttackLock();
+    }
+
+    /// <summary>
+    /// 한 번의 공격 모션이 끝났을 때 공통으로 호출하는 정리 함수
+    /// </summary>
+    private void ReleaseAttackLock()
+    {
+        _isAttackAnimationPlaying = false;
+        clickMove.InputLocked = false;
     }
 }
