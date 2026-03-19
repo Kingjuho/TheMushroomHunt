@@ -2078,6 +2078,13 @@ MonoBehaviour:
   interactionPoint: {fileID: 0}
   interactionRadius: 1.2
   maxHp: 50
+  visualRoot: {fileID: 718282786}
+  hitEffectSpawnPoint: {fileID: 718282786}
+  hitEffectPrefab: {fileID: 0}
+  hitEffectLifetime: 1
+  hitReactionDuration: 0.12
+  hitScaleMultiplier: 1.12
+  hitTiltAngle: 6
   respawnDelay: 0.1
 --- !u!1001 &737612074
 PrefabInstance:
@@ -4732,6 +4739,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationController
   animator: {fileID: 1072294781}
   moveSpeedDampTime: 0.1
+  baseAttackAnimationSpeed: 1
+  minAttackAnimationSpeed: 0.25
+  maxAttackAnimationSpeed: 3
+  attackStateName: Attack
 --- !u!136 &1072294784
 CapsuleCollider:
   m_ObjectHideFlags: 0
