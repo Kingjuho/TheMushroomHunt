@@ -4,21 +4,21 @@ using UnityEngine;
 public class Mushroom : MonoBehaviour
 {
     [Header("Interaction")]
-    [SerializeField] private Transform interactionPoint;
-    [SerializeField] private float interactionRadius = 1.0f;
+    [SerializeField] private Transform interactionPoint;        // 상호작용 기준점
+    [SerializeField] private float interactionRadius = 1.0f;    // 상호작용 반경
 
     [Header("Stats")]
     [SerializeField] private int maxHp = 50;
 
     [Header("Respawn")]
-    [SerializeField] private float respawnDelay = 8.0f;
+    [SerializeField] private float respawnDelay = 0.1f;
 
-    private Renderer[] _renderers;
-    private Collider[] _colliders;
-    private Coroutine _respawnCoroutine;
+    private Renderer[] _renderers;          // 렌더러 컴포넌트
+    private Collider[] _colliders;          // 콜라이더 컴포넌트
+    private Coroutine _respawnCoroutine;    // 리스폰 코루틴
 
     private int _currentHp;
-    private bool _isHarvestable = true;
+    private bool _isHarvestable = true;     // 현재 채집 가능 여부
 
     public Vector3 InteractionPosition
     {
@@ -33,6 +33,7 @@ public class Mushroom : MonoBehaviour
         }
     }
 
+    // 외부 읽기 전용 프로퍼티
     public float InteractionRadius => interactionRadius;
     public int MaxHp => maxHp;
     public int CurrentHp => _currentHp;
@@ -40,16 +41,16 @@ public class Mushroom : MonoBehaviour
 
     private void Awake()
     {
-        // 버섯 프리팹마다 Renderer / Collider 위치가 다를 수 있어
-        // 자식 포함으로 한 번만 캐싱해 둡니다.
+        // 렌더러와 충돌체를 모두 가지고 옴
         _renderers = GetComponentsInChildren<Renderer>(true);
         _colliders = GetComponentsInChildren<Collider>(true);
 
         ResetState();
     }
 
-    // 플레이어의 1회 공격이 들어올 때 호출됩니다.
-    // 반환값은 "이번 공격으로 채집 완료됐는가" 입니다.
+    /// <summary>
+    /// 공격을 받았을 때 데미지 계산 및 채집 여부 계산
+    /// </summary>
     public bool TryTakeDamage(int damage)
     {
         if (!_isHarvestable)
@@ -73,6 +74,9 @@ public class Mushroom : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 버섯이 완전히 채집되었을 때, 모습을 감추고 리스폰 타이머 작동
+    /// </summary>
     private void Harvest()
     {
         _isHarvestable = false;
@@ -86,6 +90,9 @@ public class Mushroom : MonoBehaviour
         _respawnCoroutine = StartCoroutine(RespawnRoutine());
     }
 
+    /// <summary>
+    /// respawnDelay만큼 기다렸다가, 다시 원래의 모습으로 리스폰
+    /// </summary>
     private IEnumerator RespawnRoutine()
     {
         yield return new WaitForSeconds(respawnDelay);
@@ -94,6 +101,9 @@ public class Mushroom : MonoBehaviour
         _respawnCoroutine = null;
     }
 
+    /// <summary>
+    /// 버섯 초기화
+    /// </summary>
     private void ResetState()
     {
         _currentHp = maxHp;
@@ -101,6 +111,9 @@ public class Mushroom : MonoBehaviour
         SetVisualState(true);
     }
 
+    /// <summary>
+    /// 렌더러, 콜라이더 온오프 함수
+    /// </summary>
     private void SetVisualState(bool isVisible)
     {
         for (int i = 0; i < _renderers.Length; i++)
@@ -108,7 +121,6 @@ public class Mushroom : MonoBehaviour
             _renderers[i].enabled = isVisible;
         }
 
-        // 채집 중에는 클릭도 막아야 하므로 Collider도 같이 끕니다.
         for (int i = 0; i < _colliders.Length; i++)
         {
             _colliders[i].enabled = isVisible;

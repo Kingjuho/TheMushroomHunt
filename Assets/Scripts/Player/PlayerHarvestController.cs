@@ -8,23 +8,24 @@ public class PlayerHarvestController : MonoBehaviour
     [SerializeField] private PlayerAnimationController animationController;
 
     [Header("Combat")]
-    [SerializeField] private int attackPower = 10;
-    [SerializeField] private float attacksPerSecond = 1.0f;
-    [SerializeField] private float attackRotationSpeed = 720f;
+    [SerializeField] private int attackPower = 10;              // 공격력
+    [SerializeField] private float attacksPerSecond = 1.0f;     // 공격 속도
+    [SerializeField] private float attackRotationSpeed = 720f;  // 회전 속도
 
     [Header("Debug")]
+    // 현재 상태
     [SerializeField] private HarvestState currentState = HarvestState.Idle;
 
-    private Mushroom _currentHarvestTarget;
-    private float _attackCooldownTimer;
-    private bool _isAttackAnimationPlaying;
-    private bool _hasPendingImpact;
+    private Mushroom _currentHarvestTarget;     // 현재 타겟
+    private float _attackCooldownTimer;         // 다음 공격 쿨다운
+    private bool _isAttackAnimationPlaying;     // 애니메이션 재생 중인지 여부
+    private bool _hasPendingImpact;             // 공격 발생 여부
 
     private enum HarvestState
     {
-        Idle,
-        MovingToTarget,
-        Attacking
+        Idle,               // 대기
+        MovingToTarget,     // 타겟을 향해 이동
+        Attacking           // 공격(채집)
     }
 
     private void Awake()
@@ -42,25 +43,33 @@ public class PlayerHarvestController : MonoBehaviour
 
     private void Update()
     {
-        if (clickMove == null)
-        {
-            return;
-        }
+        if (clickMove == null) return;
 
+        // 현재 공격 중이면 계속 공격
         if (currentState == HarvestState.Attacking)
         {
             UpdateAttacking();
             return;
         }
 
+        TryEnterAttackState();
+    }
+
+    /// <summary>
+    /// 버섯에게 다가가는 중이거나, 다가갔다면 공격 상태로 돌입할 수 있는지 판별
+    /// </summary>
+    private void TryEnterAttackState()
+    {
         Mushroom targetMushroom = clickMove.TargetMushroom;
 
+        // 버섯이 없을 시 리턴
         if (targetMushroom == null)
         {
             currentState = HarvestState.Idle;
             return;
         }
 
+        // 버섯이 이미 채집됐을 시 리턴
         if (!targetMushroom.IsHarvestable)
         {
             clickMove.ClearTargetMushroom();
@@ -70,14 +79,19 @@ public class PlayerHarvestController : MonoBehaviour
 
         currentState = HarvestState.MovingToTarget;
 
+        // 아직 거리가 멀다면 공격 X
         if (!clickMove.HasReachedMushroom(targetMushroom))
         {
             return;
         }
 
+        // 도착 시 공격
         BeginAttack(targetMushroom);
     }
 
+    /// <summary>
+    /// 공격 전 초기화 함수
+    /// </summary>
     private void BeginAttack(Mushroom mushroom)
     {
         _currentHarvestTarget = mushroom;
@@ -87,42 +101,71 @@ public class PlayerHarvestController : MonoBehaviour
         currentState = HarvestState.Attacking;
 
         clickMove.StopImmediately();
-        clickMove.ClearTargetMushroom();
-        clickMove.InputLocked = true;
     }
 
+    /// <summary>
+    /// 공격 상태일 때 매 프레임 실행, 쿨타임이 찰 때마다 무기를 휘두름
+    /// </summary>
     private void UpdateAttacking()
     {
-        if (_currentHarvestTarget == null)
+        // 공격을 할 수 없는 상태일 경우 중단
+        if (!CanContinueAttacking())
         {
-            EndAttack();
             return;
         }
 
-        if (!_currentHarvestTarget.IsHarvestable)
-        {
-            EndAttack();
-            return;
-        }
-
+        // 버섯 방향으로 회전
         FaceCurrentTarget();
-
         _attackCooldownTimer -= Time.deltaTime;
 
-        // 쿨다운이 끝났고 현재 공격 모션이 비어 있을 때만 새 공격을 시작합니다.
+        // 쿨타임 계산
         if (_attackCooldownTimer > 0f || _isAttackAnimationPlaying)
         {
             return;
         }
 
+        // 공격 시작
         StartAttackSwing();
     }
 
+    /// <summary>
+    /// 공격을 해도 되는지 유효성 검사
+    /// </summary>
+    private bool CanContinueAttacking()
+    {
+        if (_currentHarvestTarget == null)
+        {
+            EndAttack();
+            return false;
+        }
+
+        if (!_currentHarvestTarget.IsHarvestable)
+        {
+            EndAttack();
+            return false;
+        }
+
+        if (clickMove.TargetMushroom != _currentHarvestTarget)
+        {
+            EndAttack(clearClickTarget: false);
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 애니메이터에게 공격 명령 전달
+    /// </summary>
     private void StartAttackSwing()
     {
         _isAttackAnimationPlaying = true;
         _hasPendingImpact = true;
+
+        // 공격 속도에 맞춰 쿨타임을 다시 세팅
         _attackCooldownTimer = 1f / Mathf.Max(0.01f, attacksPerSecond);
+        // 공격 중엔 인풋락
+        clickMove.InputLocked = true;
 
         if (animationController != null)
         {
@@ -130,6 +173,9 @@ public class PlayerHarvestController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 플레이어 모델이 버섯을 바라보도록 회전
+    /// </summary>
     private void FaceCurrentTarget()
     {
         if (_currentHarvestTarget == null)
@@ -152,8 +198,9 @@ public class PlayerHarvestController : MonoBehaviour
             attackRotationSpeed * Time.deltaTime);
     }
 
-    // Animation Event에서 호출됩니다.
-    // 실제 피해 적용은 여기서만 수행합니다.
+    /// <summary>
+    /// 애니메이션 이벤트 함수, 실제 데미지 발생
+    /// </summary>
     public void OnAttackImpactAnimationEvent()
     {
         if (currentState != HarvestState.Attacking)
@@ -184,22 +231,37 @@ public class PlayerHarvestController : MonoBehaviour
         if (wasHarvested)
         {
             Debug.Log($"Harvest finished: {_currentHarvestTarget.name}");
-            EndAttack();
+            EndAttack(clearClickTarget: true);
         }
     }
 
-    // Attack 클립 끝에서 호출됩니다.
+    /// <summary>
+    /// 애니메이션 이벤트 함수, 상태값 변경 및 인풋락 해제
+    /// </summary>
     public void OnAttackAnimationFinishedEvent()
     {
         _isAttackAnimationPlaying = false;
+        clickMove.InputLocked = false;
     }
 
+    /// <summary>
+    /// 공격을 강제로, 혹은 자연스럽게 끝낼 때 모든 변수를 깔끔하게 초기화
+    /// </summary>
     private void EndAttack()
+    {
+        EndAttack(true);
+    }
+    private void EndAttack(bool clearClickTarget)
     {
         _currentHarvestTarget = null;
         _isAttackAnimationPlaying = false;
         _hasPendingImpact = false;
         currentState = HarvestState.Idle;
         clickMove.InputLocked = false;
+
+        if (clearClickTarget && clickMove.TargetMushroom != null)
+        {
+            clickMove.ClearTargetMushroom();
+        }
     }
 }

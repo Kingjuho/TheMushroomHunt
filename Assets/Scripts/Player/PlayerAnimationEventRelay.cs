@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// 애니메이션 클립에 삽입할 이벤트 함수
+/// </summary>
 public class PlayerAnimationEventRelay : MonoBehaviour
 {
     [Header("References")]
@@ -13,7 +16,7 @@ public class PlayerAnimationEventRelay : MonoBehaviour
         }
     }
 
-    // Attack 클립의 타격 프레임에 Animation Event로 연결합니다.
+    // Bound to the impact frame of the attack clip.
     public void OnAttackImpact()
     {
         if (harvestController == null)
@@ -24,7 +27,7 @@ public class PlayerAnimationEventRelay : MonoBehaviour
         harvestController.OnAttackImpactAnimationEvent();
     }
 
-    // Attack 클립의 끝부분에 Animation Event로 연결합니다.
+    // Bound to the end of the attack clip.
     public void OnAttackAnimationFinished()
     {
         if (harvestController == null)
