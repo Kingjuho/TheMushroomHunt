@@ -9,6 +9,7 @@ public class Mushroom : MonoBehaviour
 
     [Header("Stats")]
     [SerializeField] private int maxHp = 50;
+    [SerializeField] private int rewardGold = 50;
 
     [Header("Hit Feedback")]
     [SerializeField] private Transform visualRoot;
@@ -49,6 +50,7 @@ public class Mushroom : MonoBehaviour
     public float InteractionRadius => interactionRadius;
     public int MaxHp => maxHp;
     public int CurrentHp => _currentHp;
+    public int RewardGold => rewardGold;
     public bool IsHarvestable => _isHarvestable;
 
     private void Awake()

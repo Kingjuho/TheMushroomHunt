@@ -6,6 +6,7 @@ public class PlayerHarvestController : MonoBehaviour
     [Header("References")]
     [SerializeField] private PlayerClickMove clickMove;
     [SerializeField] private PlayerAnimationController animationController;
+    [SerializeField] private PlayerGoldWallet goldWallet;
 
     [Header("Combat")]
     [SerializeField] private int attackPower = 10;              // 공격력
@@ -38,6 +39,11 @@ public class PlayerHarvestController : MonoBehaviour
         if (animationController == null)
         {
             animationController = GetComponent<PlayerAnimationController>();
+        }
+
+        if (goldWallet == null)
+        {
+            goldWallet = GetComponent<PlayerGoldWallet>();
         }
 
         ApplyCurrentAttackAnimationSpeed();
@@ -252,6 +258,7 @@ public class PlayerHarvestController : MonoBehaviour
             return;
         }
 
+        int rewardGold = _currentHarvestTarget.RewardGold;
         bool wasHarvested = _currentHarvestTarget.TryTakeDamage(attackPower);
 
         Debug.Log(
@@ -259,11 +266,21 @@ public class PlayerHarvestController : MonoBehaviour
             $"damage: {attackPower}, " +
             $"hp: {_currentHarvestTarget.CurrentHp}/{_currentHarvestTarget.MaxHp}");
 
-        if (wasHarvested)
+        if (!wasHarvested)
         {
-            Debug.Log($"Harvest finished: {_currentHarvestTarget.name}");
-            EndAttack(clearClickTarget: true);
+            return;
         }
+
+        if (goldWallet != null)
+        {
+            goldWallet.AddGold(rewardGold);
+        }
+
+        Debug.Log(
+            $"Harvest finished: {_currentHarvestTarget.name}, " +
+            $"reward gold: {rewardGold}");
+
+        EndAttack(clearClickTarget: true);
     }
 
     /// <summary>
