@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class Mushroom : MonoBehaviour
 {
+    [Header("Display")]
+    [SerializeField] private string displayName = "";
+
     [Header("Interaction")]
     [SerializeField] private Transform interactionPoint;
     [SerializeField] private float interactionRadius = 1.0f;
@@ -33,6 +36,20 @@ public class Mushroom : MonoBehaviour
 
     private int _currentHp;
     private bool _isHarvestable = true;
+
+    public string DisplayName
+    {
+        get
+        {
+            // 표시명이 비어 있으면 오브젝트 이름 사용
+            if (!string.IsNullOrWhiteSpace(displayName))
+            {
+                return displayName;
+            }
+
+            return gameObject.name;
+        }
+    }
 
     public Vector3 InteractionPosition
     {

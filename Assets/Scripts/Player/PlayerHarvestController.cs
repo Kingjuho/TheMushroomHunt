@@ -22,6 +22,20 @@ public class PlayerHarvestController : MonoBehaviour
     private bool _isAttackAnimationPlaying;     // 애니메이션 재생 중인지 여부
     private bool _hasPendingImpact;             // 공격 발생 여부
 
+    public Mushroom CurrentHarvestTarget => _currentHarvestTarget;
+    public Mushroom DisplayTarget
+    {
+        get
+        {
+            if (_currentHarvestTarget != null)
+            {
+                return _currentHarvestTarget;
+            }
+
+            return clickMove != null ? clickMove.TargetMushroom : null;
+        }
+    }
+
     private enum HarvestState
     {
         Idle,               // 대기

@@ -9,7 +9,7 @@ public class PlayerGoldWallet : MonoBehaviour
     public int CurrentGold => currentGold;
 
     // 나중에 UI가 붙을 때를 위해 변경 이벤트 미리 선언
-    public event Action<int, int> GoldChanged;
+    public event System.Action<int, int> GoldChanged;
 
     /// <summary>
     /// 골드를 획득할 때 호출
