@@ -72,6 +72,9 @@ public class PlayerHarvestController : MonoBehaviour
     {
         if (clickMove == null) return;
 
+        // 쿨다운 체크
+        UpdateAttackCooldownTimer();
+
         // 현재 공격 중이면 계속 공격
         if (currentState == HarvestState.Attacking)
         {
@@ -80,6 +83,19 @@ public class PlayerHarvestController : MonoBehaviour
         }
 
         TryEnterAttackState();
+    }
+
+    /// <summary>
+    /// 공격 쿨다운 타이머
+    /// </summary>
+    private void UpdateAttackCooldownTimer()
+    {
+        if (_attackCooldownTimer <= 0f)
+        {
+            return;
+        }
+
+        _attackCooldownTimer = Mathf.Max(0f, _attackCooldownTimer - Time.deltaTime);
     }
 
     /// <summary>
@@ -110,10 +126,9 @@ public class PlayerHarvestController : MonoBehaviour
             return;
         }
 
-        // 버섯이 이미 채집됐을 시 리턴
+        // 버섯이 아직 리스폰 전이라면 타겟을 유지한 채 대기
         if (!targetMushroom.IsHarvestable)
         {
-            clickMove.ClearTargetMushroom();
             currentState = HarvestState.Idle;
             return;
         }
@@ -123,6 +138,13 @@ public class PlayerHarvestController : MonoBehaviour
         // 아직 거리가 멀다면 공격 X
         if (!clickMove.HasReachedMushroom(targetMushroom))
         {
+            return;
+        }
+
+        // 쿨다운 체크
+        if (_isAttackAnimationPlaying || _attackCooldownTimer > 0f)
+        {
+            currentState = HarvestState.Idle;
             return;
         }
 
@@ -162,7 +184,6 @@ public class PlayerHarvestController : MonoBehaviour
 
         // 버섯 방향으로 회전
         FaceCurrentTarget();
-        _attackCooldownTimer -= Time.deltaTime;
 
         // 쿨타임 계산
         if (_attackCooldownTimer > 0f || _isAttackAnimationPlaying)
@@ -187,7 +208,7 @@ public class PlayerHarvestController : MonoBehaviour
 
         if (!_currentHarvestTarget.IsHarvestable)
         {
-            EndAttack();
+            ExitAttackStatePreserveSwing(clearClickTarget: false);
             return false;
         }
 
@@ -268,7 +289,7 @@ public class PlayerHarvestController : MonoBehaviour
 
         if (_currentHarvestTarget == null || !_currentHarvestTarget.IsHarvestable)
         {
-            EndAttack();
+            ExitAttackStatePreserveSwing(clearClickTarget: false);
             return;
         }
 
@@ -294,7 +315,8 @@ public class PlayerHarvestController : MonoBehaviour
             $"Harvest finished: {_currentHarvestTarget.name}, " +
             $"reward gold: {rewardGold}");
 
-        EndAttack(clearClickTarget: true);
+        // 별도 입력이 없다면 리스폰 후 같은 버섯을 다시 공격
+        ExitAttackStatePreserveSwing(clearClickTarget: false);
     }
 
     /// <summary>
@@ -349,6 +371,23 @@ public class PlayerHarvestController : MonoBehaviour
         }
 
         ReleaseAttackLock();
+    }
+
+    /// <summary>
+    /// 현재 타겟에 대한 공격 상태만 종료,
+    /// 이미 시작된 스윙의 애니메이션 / 쿨다운은 유지
+    /// 버섯 리스폰 직후 공격 모션이 끊기며 공속이 빨라지는 문제를 막기 위한 처리
+    /// </summary>
+    private void ExitAttackStatePreserveSwing(bool clearClickTarget)
+    {
+        _currentHarvestTarget = null;
+        _hasPendingImpact = false;
+        currentState = HarvestState.Idle;
+
+        if (clearClickTarget && clickMove.TargetMushroom != null)
+        {
+            clickMove.ClearTargetMushroom();
+        }
     }
 
     /// <summary>
