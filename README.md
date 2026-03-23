@@ -1,5 +1,5 @@
 # TheMushroomHunt
-스타크래프트 유즈맵 '뒷산에서 버섯 캐기'를 모티브로 한 3D 채집형 프로젝트입니다.
+스타크래프트 유즈맵 '뒷산에서 버섯 캐기'를 모티브로 한 3D 방치형 성장 RPG 게임입니다.
 
 ## 개발 환경
 - Unity: `6000.3.6f1`
@@ -33,14 +33,16 @@
   - 용도: 플레이어 장착용 채집 도구 모델
 ### 애니메이션
 - Mixamo FBX
+### 폰트
+- [배달의 민족 주아체](http://font.woowahan.com/jua/)
+  - 위치: \Assets\ThirdParty\Fonts
+  - 용도: 게임 전반 폰트 디자인
 
 ## 에셋 임포트/세팅 방법
 ### 캐릭터 모델
-
 `GanzSe FREE Modular Character - Fantasy Low Poly Pack`을 Assets/ThirdParty 아래에 유지합니다.
 
 URP 프로젝트에서 머터리얼이 핑크색으로 보이면 아래를 확인합니다.
-
 - `Base Palette Material`이 Built-in shader를 보고 있는지 확인
 - 가능하면 포함된 URP용 머터리얼을 사용
 - 또는 Shader를 `Universal Render Pipeline/Lit`으로 변경
