@@ -1,2 +1,46 @@
 # TheMushroomHunt
-뒷산에서 버섯 캐기 ~The Mushroom Hunt~
+스타크래프트 유즈맵 '뒷산에서 버섯 캐기'를 모티브로 한 3D 채집형 프로젝트입니다.
+
+## 개발 환경
+- Unity: `6000.3.6f1`
+- Render Pipeline: `URP`
+- 운영 환경: `Windows`
+- 주요 패키지:
+  - `com.unity.render-pipelines.universal`: `17.3.0`
+  - `com.unity.ai.navigation`: `2.0.9`
+  - `com.unity.cinemachine`: `3.1.6`
+  - `com.unity.inputsystem`: `1.18.0`
+  - `com.unity.ugui`: `2.0.0`
+- Github Desktop
+- Codex + ChatGPT 5.4
+## 사용 에셋
+이 프로젝트를 클론하기 위해선 아래의 에셋을 임포트해야 합니다. 에셋은 모두 무료이며, 상업적으로 이용 가능합니다.
+### 환경 / UI / 캐릭터 / 상호작용
+- [GanzSe FREE Modular Character - Fantasy Low Poly Pack](https://assetstore.unity.com/packages/3d/characters/humanoids/fantasy/ganzse-free-modular-character-fantasy-low-poly-pack-321521)
+  - 위치: \Assets\ThirdParty\Free Low Poly Modular Character Pack - Fantasy Dream
+  - 용도: 플레이어 캐릭터 모델
+- [Kenney - Nature Kit](https://kenney.nl/assets/nature-kit)
+  - 위치: \Assets\ThirdParty\kenney_nature-kit
+  - 용도: 맵 디자인
+- [Kenney - UI Pack Adventure](https://kenney.nl/assets/ui-pack-adventure)
+  - 위치: \Assets\ThirdParty\kenney_ui-pack-adventure
+  - 용도: HUD / 업그레이드 패널 UI 프레임 및 버튼
+- [Kyle's Mushroom Pack (FREE)](https://assetstore.unity.com/packages/3d/vegetation/kyle-s-mushroom-pack-free-pack-357838)
+  - 위치: \Assets\ThirdParty\Kyle's Mushroom Pack (FREE)
+  - 용도: 버섯 원본 모델 / 프리팹
+- [Tool Set - PolyPack](https://alstrainfinite.itch.io/tool-set)
+  - 위치: \Assets\ThirdParty\Alstra Infinite - Tool Set
+  - 용도: 플레이어 장착용 채집 도구 모델
+### 애니메이션
+- Mixamo FBX
+
+## 에셋 임포트/세팅 방법
+### 캐릭터 모델
+
+`GanzSe FREE Modular Character - Fantasy Low Poly Pack`을 Assets/ThirdParty 아래에 유지합니다.
+
+URP 프로젝트에서 머터리얼이 핑크색으로 보이면 아래를 확인합니다.
+
+- `Base Palette Material`이 Built-in shader를 보고 있는지 확인
+- 가능하면 포함된 URP용 머터리얼을 사용
+- 또는 Shader를 `Universal Render Pipeline/Lit`으로 변경
