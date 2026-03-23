@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 [RequireComponent(typeof(PlayerClickMove))]
 public class PlayerHarvestController : MonoBehaviour
@@ -21,6 +22,12 @@ public class PlayerHarvestController : MonoBehaviour
     private float _attackCooldownTimer;         // 다음 공격 쿨다운
     private bool _isAttackAnimationPlaying;     // 애니메이션 재생 중인지 여부
     private bool _hasPendingImpact;             // 공격 발생 여부
+
+    // HUD / 강화 패널이 현재 전투 수치를 읽고 갱신 타이밍을 감지할 수 있도록 이벤트를 노출
+    public event Action CombatStatsChanged;
+
+    public int AttackPower => attackPower;
+    public float AttacksPerSecond => attacksPerSecond;
 
     public Mushroom CurrentHarvestTarget => _currentHarvestTarget;
     public Mushroom DisplayTarget
@@ -83,6 +90,39 @@ public class PlayerHarvestController : MonoBehaviour
         }
 
         TryEnterAttackState();
+    }
+
+    /// <summary>
+    /// 외부 UI가 공격력을 올릴 때 호출
+    /// 수치 변경 후 이벤트를 발생시켜 HUD / 패널이 즉시 갱신
+    /// </summary>
+    public void AddAttackPower(int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        attackPower += amount;
+        CombatStatsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 외부 UI가 공격속도를 올릴 때 호출
+    /// 공격속도는 애니메이션 속도와도 연결돼 있으므로 즉시 반영
+    /// </summary>
+    public void AddAttackSpeed(float amount)
+    {
+        if (amount <= 0f)
+        {
+            return;
+        }
+
+        attacksPerSecond += amount;
+        attacksPerSecond = Mathf.Max(0.01f, attacksPerSecond);
+
+        ApplyCurrentAttackAnimationSpeed();
+        CombatStatsChanged?.Invoke();
     }
 
     /// <summary>
