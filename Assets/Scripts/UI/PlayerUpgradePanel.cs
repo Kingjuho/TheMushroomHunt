@@ -14,13 +14,13 @@ public class PlayerUpgradePanel : MonoBehaviour
     [Header("UI - Attack Power")]
     [SerializeField] private TMP_Text attackPowerLabelText;                // "공격력"
     [SerializeField] private TMP_Text attackPowerValueText;                // "현재 10 -> 11"
-    [SerializeField] private TMP_Text attackPowerCostText;                 // "50G"
+    [SerializeField] private TMP_Text attackPowerCostText;                 // "100G"
     [SerializeField] private Button attackPowerUpgradeButton;              // 공격력 강화 버튼
 
     [Header("UI - Attack Speed")]
     [SerializeField] private TMP_Text attackSpeedLabelText;                // "공격 속도"
     [SerializeField] private TMP_Text attackSpeedValueText;                // "현재 1.00 -> 1.05"
-    [SerializeField] private TMP_Text attackSpeedCostText;                 // "50G"
+    [SerializeField] private TMP_Text attackSpeedCostText;                 // "100G"
     [SerializeField] private Button attackSpeedUpgradeButton;              // 공격속도 강화 버튼
 
     [Header("Balance")]
@@ -83,7 +83,7 @@ public class PlayerUpgradePanel : MonoBehaviour
 
     /// <summary>
     /// 패널을 외부에서 열 때 사용할 함수
-    /// 현재 수치를 먼저 갱신한 뒤 표시합니다.
+    /// 현재 수치를 먼저 갱신한 뒤 표시
     /// </summary>
     public void OpenPanel()
     {
@@ -100,7 +100,7 @@ public class PlayerUpgradePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 필수 참조가 비어 있으면 경고를 출력하고 패널을 비활성화합니다.
+    /// 필수 참조가 비어 있으면 경고를 출력하고 패널을 비활성화
     /// </summary>
     private bool ValidateReferences()
     {
@@ -140,7 +140,7 @@ public class PlayerUpgradePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 골드가 변했을 때 버튼 활성화 여부와 비용 표시를 다시 갱신합니다.
+    /// 골드가 변했을 때 버튼 활성화 여부와 비용 표시를 다시 갱신
     /// </summary>
     private void HandleGoldChanged(int currentGold, int delta)
     {
@@ -149,7 +149,7 @@ public class PlayerUpgradePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 전투 수치가 변했을 때 현재 수치 표시를 다시 갱신합니다.
+    /// 전투 수치가 변했을 때 현재 수치 표시를 다시 갱신
     /// </summary>
     private void HandleCombatStatsChanged()
     {
@@ -158,7 +158,7 @@ public class PlayerUpgradePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 닫기 버튼 클릭 시 패널을 닫습니다.
+    /// 닫기 버튼 클릭 시 패널을 닫음
     /// </summary>
     private void HandleCloseClicked()
     {
@@ -167,7 +167,7 @@ public class PlayerUpgradePanel : MonoBehaviour
 
     /// <summary>
     /// 공격력 강화 버튼 클릭 처리
-    /// 골드가 충분할 때만 차감 후 수치를 올립니다.
+    /// 골드가 충분할 때만 차감 후 수치를 올림
     /// </summary>
     private void HandleAttackPowerUpgradeClicked()
     {
@@ -181,7 +181,7 @@ public class PlayerUpgradePanel : MonoBehaviour
 
     /// <summary>
     /// 공격속도 강화 버튼 클릭 처리
-    /// 공격속도는 PlayerHarvestController 내부에서 애니메이션 속도와 함께 갱신됩니다.
+    /// 공격속도는 PlayerHarvestController 내부에서 애니메이션 속도와 함께 갱신
     /// </summary>
     private void HandleAttackSpeedUpgradeClicked()
     {
@@ -194,7 +194,7 @@ public class PlayerUpgradePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 패널 전체를 한 번에 갱신합니다.
+    /// 패널 전체를 한 번에 갱신
     /// </summary>
     private void RefreshAll()
     {
@@ -205,8 +205,8 @@ public class PlayerUpgradePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 각 행의 라벨 텍스트를 고정 문구로 갱신합니다.
-    /// 씬에서 직접 적어도 되지만, 스크립트에서 관리하면 프리팹 복제 시 누락이 줄어듭니다.
+    /// 각 행의 라벨 텍스트를 고정 문구로 갱신
+    /// 씬에서 직접 적어도 되지만, 스크립트에서 관리하면 프리팹 복제 시 누락이 줄어듦
     /// </summary>
     private void RefreshLabels()
     {
@@ -215,8 +215,8 @@ public class PlayerUpgradePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 현재 수치와 강화 후 수치를 함께 표시합니다.
-    /// 현재 패널 디자인에 맞춰 "현재 X -> Y" 형식으로 출력합니다.
+    /// 현재 수치와 강화 후 수치를 함께 표시
+    /// 현재 패널 디자인에 맞춰 "현재 X -> Y" 형식으로 출력
     /// </summary>
     private void RefreshStats()
     {
@@ -232,7 +232,7 @@ public class PlayerUpgradePanel : MonoBehaviour
 
     /// <summary>
     /// 현재 강화 비용 표시
-    /// 패널 디자인에 맞춰 "50G" 형식으로 출력합니다.
+    /// 패널 디자인에 맞춰 "100G" 형식으로 출력
     /// </summary>
     private void RefreshCosts()
     {
@@ -241,7 +241,7 @@ public class PlayerUpgradePanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 현재 보유 골드에 따라 버튼 활성화 여부를 갱신합니다.
+    /// 현재 보유 골드에 따라 버튼 활성화 여부를 갱신
     /// </summary>
     private void RefreshButtons()
     {
