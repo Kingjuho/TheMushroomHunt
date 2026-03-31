@@ -99,6 +99,7 @@ InitTestScene*.unity*
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
 
 # AI Agent
+.codex
 .dotnet-home
 AGENTS.md
 
