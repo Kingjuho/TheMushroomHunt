@@ -945,6 +945,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Beginner_Mushroom (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 6458460403497012375, guid: d18045d83144b56409f185a68441111a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7327,6 +7331,10 @@ PrefabInstance:
     - target: {fileID: 6458460403497012375, guid: d18045d83144b56409f185a68441111a, type: 3}
       propertyPath: m_Name
       value: Beginner_Mushroom
+      objectReference: {fileID: 0}
+    - target: {fileID: 6458460403497012375, guid: d18045d83144b56409f185a68441111a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14915,6 +14923,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Beginner_Mushroom (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 6458460403497012375, guid: d18045d83144b56409f185a68441111a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16279,9 +16291,9 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 469901576}
-  - {fileID: 1434094409}
   - {fileID: 58245956}
   - {fileID: 936853620}
+  - {fileID: 1434094409}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1043697183
@@ -21783,6 +21795,10 @@ PrefabInstance:
     - target: {fileID: 6458460403497012375, guid: d18045d83144b56409f185a68441111a, type: 3}
       propertyPath: m_Name
       value: Beginner_Mushroom (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 6458460403497012375, guid: d18045d83144b56409f185a68441111a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
