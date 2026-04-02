@@ -76,7 +76,16 @@ public class PlayerClickMove : MonoBehaviour
     }
 
     /// <summary>
-    /// 클릭한 대상이 버섯인지 확인하고, 채집 가능하면 목표로 삼아 이동 시작
+    /// 땅을 클릭했을 때 호출되며, 기존의 타겟 버섯을 해제한 후 해당 좌표로 이동
+    /// </summary>
+    private void HandleGroundClick(Vector3 hitPoint)
+    {
+        ClearTargetMushroom();
+        TryMoveToPosition(hitPoint);
+    }
+
+    /// <summary>
+    /// 버섯을 클릭했을 때 호출되며, 채집 가능하면 목표로 삼아 이동 시작
     /// </summary>
     private bool TryHandleMushroomClick(RaycastHit hit)
     {
@@ -96,6 +105,12 @@ public class PlayerClickMove : MonoBehaviour
     /// </summary>
     private void MoveToMushroom(Mushroom mushroom)
     {
+        if (mushroom == null) return;
+
+        // 타겟과 정지 거리를 바꾸기 전에 현재 상태 저장 (실패 시 복구용)
+        Mushroom previousTarget = _targetMushroom;
+        float previousStoppingDistance = _agent.stoppingDistance;
+
         _targetMushroom = mushroom;
 
         // 기본 정지 거리와 (버섯의 크기 + 여유 거리) 중 더 큰 값을 선택해 안전하게 정지
@@ -103,27 +118,29 @@ public class PlayerClickMove : MonoBehaviour
             _defaultStoppingDistance,
             mushroom.InteractionRadius + extraMushroomStopDistance);
 
-        TryMoveToPosition(mushroom.InteractionPosition);
+        // 실제 목적지 설정에 성공한 경우에만 새 버섯 타겟을 유지
+        // 실제로 끝까지 도달했는 지 검증은 HasReachedMushroom()에서 별도로 수행
+        if (TryMoveToPosition(mushroom.InteractionPosition)) return;
+
+        // 이동 실패 시, 이전 타겟과 정지 거리로 복구
+        RestoreMoveContext(previousTarget, previousStoppingDistance);
     }
 
     /// <summary>
-    /// 땅을 클릭했을 때 호출되며, 기존의 타겟 버섯을 해제한 후 해당 좌표로 이동
+    /// 지정된 월드 좌표 근처의 경로(NavMesh)을 찾아 이동 명령 시도
+    /// 성공 여부를 반환하여 호출 측이 타겟 유지/복구를 결정할 수 있도록 함
     /// </summary>
-    private void HandleGroundClick(Vector3 hitPoint)
+    private bool TryMoveToPosition(Vector3 worldPosition)
     {
-        ClearTargetMushroom();
-        TryMoveToPosition(hitPoint);
-    }
+        // NavMeshAgent 유효성 체크
+        if (!_agent.enabled || !_agent.isOnNavMesh) 
+            return false;
 
-    /// <summary>
-    /// 지정된 월드 좌표 근처의 경로(NavMesh)을 찾아 이동 명령 부여
-    /// </summary>
-    private void TryMoveToPosition(Vector3 worldPosition)
-    {
+        // NavMesh 상에서 유효한 위치 탐색 (갈 수 없는 위치 클릭 시 보정)
         if (!NavMesh.SamplePosition(worldPosition, out NavMeshHit navMeshHit, navMeshSampleDistance, NavMesh.AllAreas))
-            return;
+            return false;
 
-        _agent.SetDestination(navMeshHit.position);
+        return _agent.SetDestination(navMeshHit.position);
     }
 
     /// <summary>
@@ -134,13 +151,33 @@ public class PlayerClickMove : MonoBehaviour
         if (mushroom == null || mushroom != _targetMushroom)
             return false;
 
-        if (_agent.pathPending) return false;
+        if (!_agent.enabled || !_agent.isOnNavMesh)
+            return false;
 
-        if (_agent.remainingDistance > _agent.stoppingDistance + 0.05f)
+        if (_agent.pathPending) 
+            return false;
+
+        // 너무 빡빡한 허용 오차를 쓰면 "특정 위치에서만 공격 가능"한 회귀 발생
+        if (_agent.remainingDistance > _agent.stoppingDistance + 0.1f)
+            return false;
+
+        // interactionPoint가 실제로 지정된 버섯에만 strict 실제 거리 검증 적용
+        if (ShouldValidateActualInteractionDistance(mushroom) && !IsWithinMushroomInteractionRange(mushroom))
             return false;
 
         // 완벽히 정지했거나, 남은 속도가 거의 0에 수렴할 때 도착으로 판정
-        return !_agent.hasPath || _agent.desiredVelocity.sqrMagnitude < 0.0001f;
+        // 0.01: NavMeshAgent의 미세한 떨림 때문에 도착 판정이 지연되는 문제를 줄이기 위한 값
+        return !_agent.hasPath || _agent.desiredVelocity.sqrMagnitude < 0.01f;
+    }
+
+    /// <summary>
+    /// strict 실제 거리 검증을 적용할지 결정
+    /// 주의: interactionPoint가 루트와 완전히 같은 위치라면 미지정과 동일하게 취급됨
+    /// </summary>
+    private bool ShouldValidateActualInteractionDistance(Mushroom mushroom)
+    {
+        Vector3 interactionOffset = mushroom.InteractionPosition - mushroom.transform.position;
+        return interactionOffset.sqrMagnitude > 0.0001f;
     }
 
     /// <summary>
@@ -148,10 +185,7 @@ public class PlayerClickMove : MonoBehaviour
     /// </summary>
     public void StopImmediately()
     {
-        if (_agent.hasPath)
-        {
-            _agent.ResetPath();
-        }
+        if (_agent.hasPath) _agent.ResetPath();
     }
 
     /// <summary>
@@ -161,5 +195,30 @@ public class PlayerClickMove : MonoBehaviour
     {
         _targetMushroom = null;
         _agent.stoppingDistance = _defaultStoppingDistance;
+    }
+
+    /// <summary>
+    /// 버섯 재지정 이동이 실패했을 때 직전 이동 문맥을 복구
+    /// 이 함수는 "실패한 클릭 때문에 타겟 정보가 바뀌지 않도록 한다"는 책임만 담당
+    /// </summary>
+    private void RestoreMoveContext(Mushroom previousTarget, float previousStoppingDistance)
+    {
+        _targetMushroom = previousTarget;
+        _agent.stoppingDistance = previousStoppingDistance;
+    }
+
+    /// <summary>
+    /// 실제 버섯 InteractionPosition까지의 평면 거리가 허용 범위 안인지 별도로 확인
+    /// explicit interactionPoint가 있다고 판단된 경우에만 호출
+    /// </summary>
+    private bool IsWithinMushroomInteractionRange(Mushroom mushroom)
+    {
+        // 이동과 채집 진입은 수평 거리 기준이므로 높이 차이는 제외
+        Vector3 toInteraction = mushroom.InteractionPosition - transform.position;
+        toInteraction.y = 0f;
+
+        // 실제 상호작용 지점 검증에도 오차를 약간 허용 (버섯 크기 + 여유 거리)
+        float allowedDistance = _agent.stoppingDistance + 0.2f;
+        return toInteraction.sqrMagnitude <= allowedDistance * allowedDistance;
     }
 }

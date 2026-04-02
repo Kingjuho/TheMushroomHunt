@@ -266,23 +266,28 @@ public class PlayerHarvestController : MonoBehaviour
     /// </summary>
     private void StartAttackSwing()
     {
+        // AnimationController 유효성 체크
+        if (animationController == null)
+        {
+            Debug.LogWarning($"{nameof(PlayerHarvestController)}: animationController reference is missing. Attack swing cancelled.", this);
+            EndAttack();
+            return;
+        }
+
         _isAttackAnimationPlaying = true;
         _hasPendingImpact = true;
 
         // 공격 속도에 맞춰 쿨타임을 다시 세팅
         _attackCooldownTimer = 1f / Mathf.Max(0.01f, attacksPerSecond);
 
-        // 공격 중엔 인풋락
+        // 정상 Attack 재생 경로가 확보된 경우에만 인풋락
         clickMove.InputLocked = true;
 
         // 공격속도 값이 런타임 중 바뀔 수 있으므로,
         // 매 스윙 시작 시점에도 애니메이션 속도를 다시 맞춰줌
         ApplyCurrentAttackAnimationSpeed();
 
-        if (animationController != null)
-        {
-            animationController.PlayAttack();
-        }
+        animationController.PlayAttack();
     }
 
     /// <summary>

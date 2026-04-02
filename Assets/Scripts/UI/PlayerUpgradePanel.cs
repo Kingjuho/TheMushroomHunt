@@ -42,7 +42,14 @@ public class PlayerUpgradePanel : MonoBehaviour
 
     private void OnEnable()
     {
-        // 골드와 전투 수치가 바뀌면 패널 내용도 즉시 갱신되도록 이벤트에 구독합니다.
+        // 이벤트 구독 전 필수 참조가 모두 있는지 다시 한 번 확인
+        if (!HasAllRequiredReferences())
+        {
+            enabled = false;
+            return;
+        }
+
+        // 골드와 전투 수치가 바뀌면 패널 내용도 즉시 갱신되도록 이벤트에 구독
         goldWallet.GoldChanged += HandleGoldChanged;
         harvestController.CombatStatsChanged += HandleCombatStatsChanged;
 
@@ -56,29 +63,19 @@ public class PlayerUpgradePanel : MonoBehaviour
     private void OnDisable()
     {
         if (goldWallet != null)
-        {
             goldWallet.GoldChanged -= HandleGoldChanged;
-        }
 
         if (harvestController != null)
-        {
             harvestController.CombatStatsChanged -= HandleCombatStatsChanged;
-        }
 
         if (closeButton != null)
-        {
             closeButton.onClick.RemoveListener(HandleCloseClicked);
-        }
 
         if (attackPowerUpgradeButton != null)
-        {
             attackPowerUpgradeButton.onClick.RemoveListener(HandleAttackPowerUpgradeClicked);
-        }
 
         if (attackSpeedUpgradeButton != null)
-        {
             attackSpeedUpgradeButton.onClick.RemoveListener(HandleAttackSpeedUpgradeClicked);
-        }
     }
 
     /// <summary>
@@ -87,6 +84,13 @@ public class PlayerUpgradePanel : MonoBehaviour
     /// </summary>
     public void OpenPanel()
     {
+        // 외부 호출은 enabled 상태와 무관하게 들어올 수 있으므로 한 번 더 체크
+        if (!HasAllRequiredReferences())
+        {
+            Debug.LogWarning($"{nameof(PlayerUpgradePanel)}: OpenPanel called with missing references.", this);
+            return;
+        }
+
         RefreshAll();
         gameObject.SetActive(true);
     }
@@ -140,10 +144,69 @@ public class PlayerUpgradePanel : MonoBehaviour
     }
 
     /// <summary>
+    /// 패널이 런타임에서 실제로 동작 가능한지 검사
+    /// ValidateReferences는 초기 경고 출력용이고, 이 함수는 OpenPanel / Refresh / 이벤트 콜백에서 반복 호출
+    /// </summary>
+    private bool HasAllRequiredReferences()
+    {
+        return goldWallet               != null
+            && harvestController        != null
+            && closeButton              != null
+            && attackPowerLabelText     != null
+            && attackPowerValueText     != null
+            && attackPowerCostText      != null
+            && attackPowerUpgradeButton != null
+            && attackSpeedLabelText     != null
+            && attackSpeedValueText     != null
+            && attackSpeedCostText      != null
+            && attackSpeedUpgradeButton != null;
+    }
+
+    /// <summary>
+    /// 공격력 업그레이드 정의가 "구매 가능한 설정"인지 검사
+    /// </summary>
+    private bool IsAttackPowerUpgradeConfigured()
+    {
+        return attackPowerUpgradeAmount > 0 && attackPowerUpgradeCost > 0;
+    }
+
+    /// <summary>
+    /// 공격속도 업그레이드 정의가 "구매 가능한 설정"인지 검사
+    /// 잘못된 Inspector 값이 들어온 경우 UI와 실제 구매 둘 다 같은 조건으로 막기 위한 함수
+    /// </summary>
+    private bool IsAttackSpeedUpgradeConfigured()
+    {
+        return attackSpeedUpgradeAmount > 0f && attackSpeedUpgradeCost > 0;
+    }
+
+    /// <summary>
+    /// 공격력 업그레이드 버튼을 활성화해도 되는지 계산
+    /// </summary>
+    private bool CanPurchaseAttackPowerUpgrade()
+    {
+        return HasAllRequiredReferences()
+            && IsAttackPowerUpgradeConfigured()
+            && goldWallet.CurrentGold >= attackPowerUpgradeCost;
+    }
+
+    /// <summary>
+    /// 공격속도 업그레이드 버튼을 활성화해도 되는지 계산
+    /// 버튼 interactable 계산과 클릭 처리의 판단 기준을 맞추기 위한 공통 함수
+    /// </summary>
+    private bool CanPurchaseAttackSpeedUpgrade()
+    {
+        return HasAllRequiredReferences()
+            && IsAttackSpeedUpgradeConfigured()
+            && goldWallet.CurrentGold >= attackSpeedUpgradeCost;
+    }
+
+    /// <summary>
     /// 골드가 변했을 때 버튼 활성화 여부와 비용 표시를 다시 갱신
     /// </summary>
     private void HandleGoldChanged(int currentGold, int delta)
     {
+        if (!HasAllRequiredReferences()) return;
+
         RefreshButtons();
         RefreshCosts();
     }
@@ -153,6 +216,8 @@ public class PlayerUpgradePanel : MonoBehaviour
     /// </summary>
     private void HandleCombatStatsChanged()
     {
+        if (!HasAllRequiredReferences()) return;
+
         RefreshStats();
         RefreshButtons();
     }
@@ -171,10 +236,18 @@ public class PlayerUpgradePanel : MonoBehaviour
     /// </summary>
     private void HandleAttackPowerUpgradeClicked()
     {
-        if (!goldWallet.TrySpendGold(attackPowerUpgradeCost))
+        if (!HasAllRequiredReferences()) return;
+
+        // 비용 차감보다 먼저 설정값 검사
+        if (!IsAttackPowerUpgradeConfigured())
         {
+            Debug.LogWarning($"{nameof(PlayerUpgradePanel)}: attack power upgrade amount/cost must be greater than 0.", this);
+            RefreshAll();
             return;
         }
+
+        if (!goldWallet.TrySpendGold(attackPowerUpgradeCost))
+            return;
 
         harvestController.AddAttackPower(attackPowerUpgradeAmount);
     }
@@ -185,10 +258,18 @@ public class PlayerUpgradePanel : MonoBehaviour
     /// </summary>
     private void HandleAttackSpeedUpgradeClicked()
     {
-        if (!goldWallet.TrySpendGold(attackSpeedUpgradeCost))
+        if (!HasAllRequiredReferences()) return;
+
+        // 비용 차감보다 먼저 설정값 검사
+        if (!IsAttackSpeedUpgradeConfigured())
         {
+            Debug.LogWarning($"{nameof(PlayerUpgradePanel)}: attack speed upgrade amount/cost must be greater than 0.", this);
+            RefreshAll();
             return;
         }
+
+        if (!goldWallet.TrySpendGold(attackSpeedUpgradeCost))
+            return;
 
         harvestController.AddAttackSpeed(attackSpeedUpgradeAmount);
     }
@@ -198,6 +279,8 @@ public class PlayerUpgradePanel : MonoBehaviour
     /// </summary>
     private void RefreshAll()
     {
+        if (!HasAllRequiredReferences()) return;
+
         RefreshLabels();
         RefreshStats();
         RefreshCosts();
@@ -221,13 +304,16 @@ public class PlayerUpgradePanel : MonoBehaviour
     private void RefreshStats()
     {
         int currentAttackPower = harvestController.AttackPower;
-        int nextAttackPower = currentAttackPower + attackPowerUpgradeAmount;
-
         float currentAttackSpeed = harvestController.AttacksPerSecond;
-        float nextAttackSpeed = currentAttackSpeed + attackSpeedUpgradeAmount;
 
-        attackPowerValueText.text = $"현재 {currentAttackPower} -> {nextAttackPower}";
-        attackSpeedValueText.text = $"현재 {currentAttackSpeed:0.00} -> {nextAttackSpeed:0.00}";
+        // invalid 시 화면에 바로 "설정 오류"를 드러내 Inspector 이슈를 빠르게 파악할 수 있게 함
+        attackPowerValueText.text = IsAttackPowerUpgradeConfigured()
+            ? $"현재 {currentAttackPower} -> {currentAttackPower + attackPowerUpgradeAmount}"
+            : $"현재 {currentAttackPower} -> 설정 오류";
+
+        attackSpeedValueText.text = IsAttackSpeedUpgradeConfigured()
+            ? $"현재 {currentAttackSpeed:0.00} -> {currentAttackSpeed + attackSpeedUpgradeAmount:0.00}"
+            : $"현재 {currentAttackSpeed:0.00} -> 설정 오류";
     }
 
     /// <summary>
@@ -236,8 +322,14 @@ public class PlayerUpgradePanel : MonoBehaviour
     /// </summary>
     private void RefreshCosts()
     {
-        attackPowerCostText.text = $"{attackPowerUpgradeCost}G";
-        attackSpeedCostText.text = $"{attackSpeedUpgradeCost}G";
+        // 버튼 상태뿐 아니라 비용 텍스트도 같은 유효성 기준으로 표시
+        attackPowerCostText.text = IsAttackPowerUpgradeConfigured()
+            ? $"{attackPowerUpgradeCost}G"
+            : "설정 오류";
+
+        attackSpeedCostText.text = IsAttackSpeedUpgradeConfigured()
+            ? $"{attackSpeedUpgradeCost}G"
+            : "설정 오류";
     }
 
     /// <summary>
@@ -245,7 +337,8 @@ public class PlayerUpgradePanel : MonoBehaviour
     /// </summary>
     private void RefreshButtons()
     {
-        attackPowerUpgradeButton.interactable = goldWallet.CurrentGold >= attackPowerUpgradeCost;
-        attackSpeedUpgradeButton.interactable = goldWallet.CurrentGold >= attackSpeedUpgradeCost;
+        // 실제 구매 로직과 같은 조건식 사용
+        attackPowerUpgradeButton.interactable = CanPurchaseAttackPowerUpgrade();
+        attackSpeedUpgradeButton.interactable = CanPurchaseAttackSpeedUpgrade();
     }
 }
