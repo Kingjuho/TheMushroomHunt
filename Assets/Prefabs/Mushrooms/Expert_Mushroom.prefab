@@ -137,8 +137,8 @@ MonoBehaviour:
   displayName: "\uAD11\uB300\uBC84\uC12F"
   interactionPoint: {fileID: 0}
   interactionRadius: 1.2
-  maxHp: 400
-  rewardGold: 500
+  maxHp: 450
+  rewardGold: 1000
   visualRoot: {fileID: 5755491001715567927}
   hitEffectSpawnPoint: {fileID: 5755491001715567927}
   hitEffectPrefab: {fileID: 0}

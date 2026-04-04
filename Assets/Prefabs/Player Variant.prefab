@@ -1053,6 +1053,9 @@ PrefabInstance:
       addedObject: {fileID: 7500489517177894859}
     - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 8153583878165700085}
+    - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 7951941531241781529}
     - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
       insertIndex: -1
@@ -1183,6 +1186,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerGoldWallet
   currentGold: 0
+--- !u!114 &8153583878165700085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8870903137881584759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9059a94ea3e11d34cb6eb6928858b727, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SaveLoadCoordinator
+  playerTransform: {fileID: 0}
+  clickMove: {fileID: 0}
+  goldWallet: {fileID: 0}
+  harvestController: {fileID: 0}
+  saveStatusText: {fileID: 0}
+  saveFileName: save-slot.json
+  loadPositionNavMeshSampleDistance: 2
+  saveCompletedMessage: "\uC800\uC7A5\uB418\uC5C8\uC2B5\uB2C8\uB2E4."
+  saveStatusMessageDuration: 1.5
 --- !u!195 &7951941531241781529
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -1193,7 +1217,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.5
-  m_Speed: 3.5
+  m_Speed: 4
   m_Acceleration: 1000
   avoidancePriority: 50
   m_AngularSpeed: 1080
