@@ -34,18 +34,20 @@ public class SaveTriggerZone : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!TryGetPlayer(other, out PlayerClickMove player))
-        {
             return;
-        }
 
         // 플레이어가 여러 Collider를 가졌더라도
         // 한 번 영역 안에 들어온 동안에는 중복 저장하지 않도록 막는다.
         if (_currentPlayer == player)
-        {
             return;
-        }
 
         _currentPlayer = player;
+
+        // 로드 직후 저장 지점 안에서 시작한 경우,
+        // 첫 Trigger 진입을 즉시 재저장으로 취급하지 않도록 짧게 차단
+        if (saveLoadCoordinator.IsAutoSaveBlockedAfterLoad)
+            return;
+
         saveLoadCoordinator.SaveNow();
     }
 

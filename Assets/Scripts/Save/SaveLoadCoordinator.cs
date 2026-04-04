@@ -23,6 +23,13 @@ public class SaveLoadCoordinator : MonoBehaviour
     [Header("Feedback")]
     [SerializeField] private string saveCompletedMessage = "저장되었습니다.";
     [SerializeField] private float saveStatusMessageDuration = 1.5f;
+    // 즉시 재저장/재로드 방지. 저장 직후 또는 로드 직후 일정 시간 동안은 추가 저장을 막음
+    private const float AutoSaveBlockAfterLoadDuration = 0.25f;
+    private float _lastSuccessfulLoadRealtime = float.NegativeInfinity;
+    public bool IsAutoSaveBlockedAfterLoad
+    {
+        get => Time.realtimeSinceStartup - _lastSuccessfulLoadRealtime < AutoSaveBlockAfterLoadDuration;
+    }
 
     private LocalJsonSaveService _saveService;
     private bool _hasTriedInitialLoad;
@@ -153,13 +160,14 @@ public class SaveLoadCoordinator : MonoBehaviour
 
     /// <summary>
     /// 저장된 골드, 전투 수치, 이동속도, 위치를 순서대로 적용
+    /// 앞단 JSON 검증이 fail-closed로 동작하므로 여기서는 저장된 최종값을 그대로 복원
     /// </summary>
     private void ApplyLoadedData(SaveData loadedData)
     {
         goldWallet.TrySetGold(loadedData.gold);
         harvestController.TrySetCombatStats(loadedData.attackPower, loadedData.attacksPerSecond);
 
-        if (loadedData.moveSpeed > 0f && !clickMove.TrySetMoveSpeed(loadedData.moveSpeed))
+        if (!clickMove.TrySetMoveSpeed(loadedData.moveSpeed))
         {
             Debug.LogWarning(
                 $"{nameof(SaveLoadCoordinator)}: failed to apply saved move speed. Keeping current NavMeshAgent speed.",
@@ -222,7 +230,7 @@ public class SaveLoadCoordinator : MonoBehaviour
             && loadedData.gold >= 0
             && loadedData.attackPower > 0
             && loadedData.attacksPerSecond > 0f
-            && loadedData.moveSpeed >= 0f;
+            && loadedData.moveSpeed > 0f;
     }
 
     /// <summary>
