@@ -24,7 +24,9 @@ public class PlayerClickMove : MonoBehaviour
 
     public bool InputLocked { get; set; }                   // 인풋 잠금
 
-    public Mushroom TargetMushroom => _targetMushroom;      // 외부 읽기 전용 프로퍼티
+    // 외부 읽기 전용 프로퍼티
+    public Mushroom TargetMushroom => _targetMushroom;                      // 타겟 버섯
+    public float CurrentMoveSpeed => _agent != null ? _agent.speed : 0f;    // 현재 이동 속도
 
     private void Awake()
     {
@@ -258,6 +260,27 @@ public class PlayerClickMove : MonoBehaviour
             _agent.enabled = true;
         }
 
+        return true;
+    }
+
+    /// <summary>
+    /// 세이브파일의 최종 이동속도를 NavMeshAgent에 복원
+    /// 잘못된 값이면 기존 Inspector 값을 유지하도록 false 반환
+    /// </summary>
+    public bool TrySetMoveSpeed(float moveSpeed)
+    {
+        if (_agent == null)
+        {
+            return false;
+        }
+
+        if (moveSpeed <= 0f)
+        {
+            Debug.LogWarning($"{nameof(PlayerClickMove)}: moveSpeed must be greater than 0.", this);
+            return false;
+        }
+
+        _agent.speed = moveSpeed;
         return true;
     }
 }

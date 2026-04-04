@@ -2,6 +2,9 @@
 using System.IO;
 using UnityEngine;
 
+/// <summary>
+/// Application.persistentDataPath 아래 단일 JSON 파일을 읽고 쓰는 로컬 저장 서비스
+/// </summary>
 public sealed class LocalJsonSaveService
 {
     private readonly string _saveFilePath;
@@ -17,19 +20,42 @@ public sealed class LocalJsonSaveService
         _saveFilePath = Path.Combine(Application.persistentDataPath, safeFileName);
     }
 
-    public void Save(SaveData data)
+    /// <summary>
+    /// 현재 슬롯 내용을 JSON 파일로 덮어씀
+    /// 저장 경로가 아직 없으면 폴더를 먼저 만들고, 실패 시 false 반환
+    /// </summary>
+    public bool TrySave(SaveData data)
     {
-        string directoryPath = Path.GetDirectoryName(_saveFilePath);
-
-        if (!string.IsNullOrWhiteSpace(directoryPath) && !Directory.Exists(directoryPath))
+        if (data == null)
         {
-            Directory.CreateDirectory(directoryPath);
+            Debug.LogWarning($"{nameof(LocalJsonSaveService)}: save data is null.");
+            return false;
         }
 
-        string json = JsonUtility.ToJson(data, true);
-        File.WriteAllText(_saveFilePath, json);
+        try
+        {
+            string directoryPath = Path.GetDirectoryName(_saveFilePath);
+
+            if (!string.IsNullOrWhiteSpace(directoryPath) && !Directory.Exists(directoryPath))
+            {
+                Directory.CreateDirectory(directoryPath);
+            }
+
+            string json = JsonUtility.ToJson(data, true);
+            File.WriteAllText(_saveFilePath, json);
+            return true;
+        }
+        catch (Exception exception)
+        {
+            Debug.LogWarning($"{nameof(LocalJsonSaveService)}: failed to write save file. Path: {_saveFilePath}\n{exception}");
+            return false;
+        }
     }
 
+    /// <summary>
+    /// 저장 파일이 존재하면 읽어서 SaveData로 복원
+    /// 필수 필드가 누락되었거나 JSON이 손상된 경우에는 경고만 남기고 false 반환
+    /// </summary>
     public bool TryLoad(out SaveData data)
     {
         data = null;
@@ -49,7 +75,7 @@ public sealed class LocalJsonSaveService
                 return false;
             }
 
-            if (!HasRequiredFields(json))
+            if (!HasRequiredCoreFields(json))
             {
                 Debug.LogWarning($"{nameof(LocalJsonSaveService)}: save file is missing required fields. Path: {_saveFilePath}");
                 return false;
@@ -73,11 +99,16 @@ public sealed class LocalJsonSaveService
         }
     }
 
-    private bool HasRequiredFields(string json)
+    /// <summary>
+    /// 핵심 필드 유효성 체크
+    /// 필수 필드가 하나라도 빠져 있으면 손상된 세이브로 판단
+    /// </summary>
+    private bool HasRequiredCoreFields(string json)
     {
         return json.Contains("\"gold\"")
             && json.Contains("\"playerPosition\"")
             && json.Contains("\"attackPower\"")
-            && json.Contains("\"attacksPerSecond\"");
+            && json.Contains("\"attacksPerSecond\"")
+            && json.Contains("\"moveSpeed\"");
     }
 }
