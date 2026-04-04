@@ -221,4 +221,43 @@ public class PlayerClickMove : MonoBehaviour
         float allowedDistance = _agent.stoppingDistance + 0.2f;
         return toInteraction.sqrMagnitude <= allowedDistance * allowedDistance;
     }
+
+    /// <summary>
+    /// 세이브파일의 플레이어 위치를 복원할 때 호출
+    /// NavMesh 위에서만 위치를 적용하고, 실패 시 호출 측이 기본 시작 위치를 유지할 수 있도록 false를 반환
+    /// </summary>
+    public bool TryWarpToPosition(Vector3 worldPosition, float sampleDistance)
+    {
+        float effectiveSampleDistance = Mathf.Max(0.01f, sampleDistance);
+
+        if (!NavMesh.SamplePosition(worldPosition, out NavMeshHit navMeshHit, effectiveSampleDistance, NavMesh.AllAreas))
+        {
+            return false;
+        }
+
+        ClearTargetMushroom();
+        InputLocked = false;
+        StopImmediately();
+
+        if (_agent.enabled && _agent.isOnNavMesh)
+        {
+            return _agent.Warp(navMeshHit.position);
+        }
+
+        bool wasEnabled = _agent.enabled;
+
+        if (wasEnabled)
+        {
+            _agent.enabled = false;
+        }
+
+        transform.position = navMeshHit.position;
+
+        if (wasEnabled)
+        {
+            _agent.enabled = true;
+        }
+
+        return true;
+    }
 }

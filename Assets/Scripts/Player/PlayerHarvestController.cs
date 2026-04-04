@@ -443,4 +443,34 @@ public class PlayerHarvestController : MonoBehaviour
         _isAttackAnimationPlaying = false;
         clickMove.InputLocked = false;
     }
+
+    /// <summary>
+    /// 세이브파일의 스탯을 복원할 때 호출
+    /// </summary>
+    public bool TrySetCombatStats(int newAttackPower, float newAttacksPerSecond, bool notifyListeners = true)
+    {
+        if (newAttackPower <= 0)
+        {
+            Debug.LogWarning($"{nameof(PlayerHarvestController)}: attack power must be greater than 0.", this);
+            return false;
+        }
+
+        if (newAttacksPerSecond <= 0f)
+        {
+            Debug.LogWarning($"{nameof(PlayerHarvestController)}: attacksPerSecond must be greater than 0.", this);
+            return false;
+        }
+
+        attackPower = newAttackPower;
+        attacksPerSecond = Mathf.Max(0.01f, newAttacksPerSecond);
+
+        ApplyCurrentAttackAnimationSpeed();
+
+        if (notifyListeners)
+        {
+            CombatStatsChanged?.Invoke();
+        }
+
+        return true;
+    }
 }
