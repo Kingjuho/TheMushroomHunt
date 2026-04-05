@@ -19,11 +19,16 @@ public class GuardChaseController : MonoBehaviour
     [SerializeField] private float repathInterval = 0.15f;
     [SerializeField] private float spawnNavMeshSampleDistance = 1.5f;
 
+    [Header("Contact")]
+    [SerializeField] private float contactDistance = 1.1f;
+    [SerializeField] private float contactHeightTolerance = 1.5f;
+
     private GuardEncounterController _encounterController;
     private PlayerClickMove _trackedPlayer;
     private float _nextRepathTime;
     private bool _isChasing;
     private bool _isInitialized;
+    private bool _hasReportedContact;
 
     private void Awake()
     {
@@ -35,6 +40,7 @@ public class GuardChaseController : MonoBehaviour
         _isChasing = false;
         _trackedPlayer = null;
         _encounterController = null;
+        _hasReportedContact = false;
         StopMovement();
     }
 
@@ -45,19 +51,17 @@ public class GuardChaseController : MonoBehaviour
             return;
         }
 
-        if (Time.time < _nextRepathTime)
+        if (Time.time >= _nextRepathTime)
         {
-            return;
+            _nextRepathTime = Time.time + repathInterval;
+
+            if (navMeshAgent.enabled && navMeshAgent.isOnNavMesh)
+            {
+                navMeshAgent.SetDestination(_trackedPlayer.transform.position);
+            }
         }
 
-        _nextRepathTime = Time.time + repathInterval;
-
-        if (!navMeshAgent.enabled || !navMeshAgent.isOnNavMesh)
-        {
-            return;
-        }
-
-        navMeshAgent.SetDestination(_trackedPlayer.transform.position);
+        TryReportContactByDistance();
     }
 
     /// <summary>
@@ -92,6 +96,7 @@ public class GuardChaseController : MonoBehaviour
         _encounterController = encounterController;
         _isChasing = true;
         _nextRepathTime = 0f;
+        _hasReportedContact = false;
         return true;
     }
 
@@ -109,6 +114,7 @@ public class GuardChaseController : MonoBehaviour
         _isChasing = false;
         _trackedPlayer = null;
         _encounterController = null;
+        _hasReportedContact = false;
 
         StopMovement();
         TryPlaceAtSpawn(spawnPosition, spawnRotation);
@@ -130,7 +136,7 @@ public class GuardChaseController : MonoBehaviour
             return;
         }
 
-        _encounterController.NotifyGuardContact(player);
+        ReportContact();
     }
 
     private bool EnsureInitialized()
@@ -157,6 +163,9 @@ public class GuardChaseController : MonoBehaviour
 
         repathInterval = Mathf.Max(0.05f, repathInterval);
         spawnNavMeshSampleDistance = Mathf.Max(0.1f, spawnNavMeshSampleDistance);
+        
+        contactDistance = Mathf.Max(0.1f, contactDistance);
+        contactHeightTolerance = Mathf.Max(0.1f, contactHeightTolerance);
 
         if (navMeshAgent == null || contactTrigger == null || physicsBody == null)
         {
@@ -226,5 +235,46 @@ public class GuardChaseController : MonoBehaviour
         }
 
         navMeshAgent.ResetPath();
+    }
+
+    /// <summary>
+    /// Trigger 이벤트가 누락되는 경우를 대비한 거리 기반 접촉 fallback
+    /// NavMeshAgent + kinematic Rigidbody 조합에서 OnTriggerEnter가 불안정할 때를 막기 위한 안전장치
+    /// </summary>
+    private void TryReportContactByDistance()
+    {
+        if (_hasReportedContact || _trackedPlayer == null || _encounterController == null)
+        {
+            return;
+        }
+
+        Vector3 playerPosition = _trackedPlayer.transform.position;
+        Vector3 guardPosition = transform.position;
+
+        if (Mathf.Abs(playerPosition.y - guardPosition.y) > contactHeightTolerance)
+        {
+            return;
+        }
+
+        Vector3 toPlayer = playerPosition - guardPosition;
+        toPlayer.y = 0f;
+
+        if (toPlayer.sqrMagnitude > contactDistance * contactDistance)
+        {
+            return;
+        }
+
+        ReportContact();
+    }
+
+    private void ReportContact()
+    {
+        if (_hasReportedContact || _trackedPlayer == null || _encounterController == null)
+        {
+            return;
+        }
+
+        _hasReportedContact = true;
+        _encounterController.NotifyGuardContact(_trackedPlayer);
     }
 }

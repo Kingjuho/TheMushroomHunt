@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using TMPro;
+using UnityEngine;
 
 /// <summary>
 /// 광대버섯 섬 진입, 30초 경비원 스폰 타이머, 거점 복귀 리셋, 접촉 제재 흐름을 총괄
@@ -15,6 +17,12 @@ public class GuardEncounterController : MonoBehaviour
     [SerializeField] private Transform guardSpawnPoint;
     [SerializeField] private Transform baseReturnPoint;
 
+    [Header("Feedback")]
+    [SerializeField] private TMP_Text guardStatusText;
+    [SerializeField] private string guardSpawnedMessage = "경비원이 나타났습니다!";
+    [SerializeField] private string guardCaughtMessage = "경비원에게 붙잡혔습니다.\n뇌물로 소지금의 절반을 빼앗겼습니다.";
+    [SerializeField] private float guardStatusMessageDuration = 1.5f;
+
     [Header("Timing")]
     [SerializeField] private float guardSpawnDelaySeconds = 30f;
     [SerializeField] private float baseReturnWarpSampleDistance = 2f;
@@ -22,17 +30,36 @@ public class GuardEncounterController : MonoBehaviour
     private bool _isPlayerInsideIslandZone;
     private bool _isGuardActive;
     private float _remainingSpawnDelay;
+    private Coroutine _guardStatusCoroutine;
 
     private void Awake()
     {
         guardSpawnDelaySeconds = Mathf.Max(0.1f, guardSpawnDelaySeconds);
         baseReturnWarpSampleDistance = Mathf.Max(0.1f, baseReturnWarpSampleDistance);
+        guardStatusMessageDuration = Mathf.Max(0.1f, guardStatusMessageDuration);
+
+        if (guardStatusText != null)
+        {
+            ClearGuardStatusText();
+        }
+
         _remainingSpawnDelay = guardSpawnDelaySeconds;
 
         if (!ValidateReferences())
         {
             enabled = false;
         }
+    }
+
+    private void OnDisable()
+    {
+        if (_guardStatusCoroutine != null)
+        {
+            StopCoroutine(_guardStatusCoroutine);
+            _guardStatusCoroutine = null;
+        }
+
+        ClearGuardStatusText();
     }
 
     private void Start()
@@ -146,6 +173,7 @@ public class GuardEncounterController : MonoBehaviour
             guardSpawnPoint.rotation);
 
         ApplyGuardPenaltyAndReturnToBase();
+        ShowGuardStatus(guardCaughtMessage);
 
         _isPlayerInsideIslandZone = false;
         _remainingSpawnDelay = guardSpawnDelaySeconds;
@@ -171,7 +199,6 @@ public class GuardEncounterController : MonoBehaviour
             guardSpawnPoint.rotation);
     }
 
-
     private void SpawnGuard()
     {
         if (_isGuardActive)
@@ -196,6 +223,7 @@ public class GuardEncounterController : MonoBehaviour
         }
 
         _isGuardActive = true;
+        ShowGuardStatus(guardSpawnedMessage);
     }
 
     private void ApplyGuardPenaltyAndReturnToBase()
@@ -280,5 +308,37 @@ public class GuardEncounterController : MonoBehaviour
         }
 
         return isValid;
+    }
+
+    private void ShowGuardStatus(string message)
+    {
+        if (guardStatusText == null)
+        {
+            return;
+        }
+
+        if (_guardStatusCoroutine != null)
+        {
+            StopCoroutine(_guardStatusCoroutine);
+        }
+
+        guardStatusText.text = message;
+        _guardStatusCoroutine = StartCoroutine(ClearGuardStatusAfterDelay());
+    }
+
+    private IEnumerator ClearGuardStatusAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(guardStatusMessageDuration);
+
+        ClearGuardStatusText();
+        _guardStatusCoroutine = null;
+    }
+
+    private void ClearGuardStatusText()
+    {
+        if (guardStatusText != null)
+        {
+            guardStatusText.text = string.Empty;
+        }
     }
 }
