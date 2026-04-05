@@ -237,9 +237,7 @@ public class PlayerClickMove : MonoBehaviour
             return false;
         }
 
-        ClearTargetMushroom();
-        InputLocked = false;
-        StopImmediately();
+        ResetMovementState();
 
         if (_agent.enabled && _agent.isOnNavMesh)
         {
@@ -261,6 +259,17 @@ public class PlayerClickMove : MonoBehaviour
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// 외부 시스템이 현재 이동 타겟, 경로, 입력 잠금을 강제로 정리시킬 때 호출
+    /// 텔레포트 전에 이동 문맥을 먼저 끊어야 할 때 사용
+    /// </summary>
+    public void ResetMovementState()
+    {
+        ClearTargetMushroom();
+        InputLocked = false;
+        StopImmediately();
     }
 
     /// <summary>

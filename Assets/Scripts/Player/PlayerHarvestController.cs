@@ -445,6 +445,31 @@ public class PlayerHarvestController : MonoBehaviour
     }
 
     /// <summary>
+    /// 외부 시스템(경비원, 강제 귀환 등)이 현재 채집/공격 흐름을 즉시 중단시킬 때 호출
+    /// 일반 공격 종료와 달리 쿨다운과 pending impact도 함께 비워 다음 상호작용이 꼬이지 않도록 함
+    /// </summary>
+    public void ForceCancelHarvest(bool clearClickTarget = true)
+    {
+        _currentHarvestTarget = null;
+        _attackCooldownTimer = 0f;
+        _isAttackAnimationPlaying = false;
+        _hasPendingImpact = false;
+        currentState = HarvestState.Idle;
+
+        if (clickMove == null)
+        {
+            return;
+        }
+
+        clickMove.InputLocked = false;
+
+        if (clearClickTarget && clickMove.TargetMushroom != null)
+        {
+            clickMove.ClearTargetMushroom();
+        }
+    }
+
+    /// <summary>
     /// 세이브파일의 스탯을 복원할 때 호출
     /// </summary>
     public bool TrySetCombatStats(int newAttackPower, float newAttacksPerSecond, bool notifyListeners = true)
