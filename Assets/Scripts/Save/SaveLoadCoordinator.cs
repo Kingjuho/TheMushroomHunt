@@ -15,6 +15,7 @@ public class SaveLoadCoordinator : MonoBehaviour
     [SerializeField] private PlayerGoldWallet goldWallet;
     [SerializeField] private PlayerHarvestController harvestController;
     [SerializeField] private TMP_Text saveStatusText;
+    [SerializeField] private GuardEncounterController guardEncounterController;
 
     [Header("Save")]
     [SerializeField] private string saveFileName = "save-slot.json";
@@ -84,6 +85,7 @@ public class SaveLoadCoordinator : MonoBehaviour
     private void Start()
     {
         TryApplyInitialLoad();
+        StartCoroutine(ResetGuardRuntimeAfterInitialLoad());
     }
 
     private void OnDisable()
@@ -156,6 +158,23 @@ public class SaveLoadCoordinator : MonoBehaviour
         }
 
         ApplyLoadedData(loadedData);
+    }
+
+    /// <summary>
+    /// GuardEncounterController의 Start 초기화보다 나중에 실행되도록 한 프레임 미뤄서
+    /// load 성공/실패와 무관하게 경비원 상태가 최종적으로 기본값으로 고정되게 함
+    /// 저장 스키마를 늘리지 않고도 "경비원 상태는 저장하지 않는다" 정책을 보장하기 위한 훅
+    /// </summary>
+    private IEnumerator ResetGuardRuntimeAfterInitialLoad()
+    {
+        yield return null;
+
+        if (guardEncounterController == null)
+        {
+            yield break;
+        }
+
+        guardEncounterController.ResetRuntimeStateAfterLoad();
     }
 
     /// <summary>

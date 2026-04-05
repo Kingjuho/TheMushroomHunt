@@ -4724,8 +4724,6 @@ Transform:
   m_Children:
   - {fileID: 196887042}
   - {fileID: 140932704}
-  - {fileID: 1708256616}
-  - {fileID: 2135822267}
   - {fileID: 79922662}
   - {fileID: 158383782}
   m_Father: {fileID: 1115698889}
@@ -5909,6 +5907,8 @@ Transform:
   - {fileID: 1529369791}
   - {fileID: 129769562}
   - {fileID: 1993084297}
+  - {fileID: 1708256616}
+  - {fileID: 2135822267}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1050567379
@@ -8015,7 +8015,7 @@ GameObject:
   - component: {fileID: 1708256618}
   - component: {fileID: 1708256620}
   m_Layer: 0
-  m_Name: AmanitaZone
+  m_Name: DangerZone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8034,7 +8034,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 841193102}
+  m_Father: {fileID: 1043769631}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!54 &1708256618
 Rigidbody:
@@ -10298,7 +10298,7 @@ Transform:
   m_LocalScale: {x: 1.5, y: 1, z: 1.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 841193102}
+  m_Father: {fileID: 1043769631}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2135822268
 MonoBehaviour:

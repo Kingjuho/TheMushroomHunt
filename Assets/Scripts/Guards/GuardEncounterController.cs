@@ -151,6 +151,27 @@ public class GuardEncounterController : MonoBehaviour
         _remainingSpawnDelay = guardSpawnDelaySeconds;
     }
 
+    /// <summary>
+    /// 저장/로드 직후 경비원 런타임 상태를 기본값으로 초기화
+    /// 경비원 추적 상태는 저장하지 않으므로, load 결과와 무관하게 항상 inactive + 카운트다운 미가동 상태를 강제함
+    /// </summary>
+    public void ResetRuntimeStateAfterLoad()
+    {
+        _isPlayerInsideIslandZone = false;
+        _isGuardActive = false;
+        _remainingSpawnDelay = 0f;
+
+        if (guardChaseController == null || guardSpawnPoint == null)
+        {
+            return;
+        }
+
+        guardChaseController.ResetToSpawnAndDisable(
+            guardSpawnPoint.position,
+            guardSpawnPoint.rotation);
+    }
+
+
     private void SpawnGuard()
     {
         if (_isGuardActive)
