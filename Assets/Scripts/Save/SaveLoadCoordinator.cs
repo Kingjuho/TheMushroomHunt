@@ -85,7 +85,9 @@ public class SaveLoadCoordinator : MonoBehaviour
 
     private void Start()
     {
-        TryApplyInitialLoad();
+        bool shouldApplyInitialLoad = GameStartContext.ConsumeShouldApplyInitialLoad(true);
+
+        TryApplyInitialLoad(shouldApplyInitialLoad);
         StartCoroutine(ResetGuardRuntimeAfterInitialLoad());
     }
 
@@ -98,6 +100,39 @@ public class SaveLoadCoordinator : MonoBehaviour
         }
 
         ClearSaveStatusText();
+    }
+
+    /// <summary>
+    /// MainScene 진입 직후 한 번만 저장 파일을 읽어 적용
+    /// New Game으로 시작한 경우에는 이번 실행에 한해서만 로드 X
+    /// </summary>
+    private void TryApplyInitialLoad(bool shouldApplyInitialLoad)
+    {
+        if (!enabled || _hasTriedInitialLoad)
+        {
+            return;
+        }
+
+        _hasTriedInitialLoad = true;
+
+        if (!shouldApplyInitialLoad)
+        {
+            Debug.Log($"{nameof(SaveLoadCoordinator)}: initial load skipped for this run.", this);
+            return;
+        }
+
+        if (!_saveService.TryLoad(out SaveData loadedData))
+        {
+            return;
+        }
+
+        if (!IsLoadedDataValid(loadedData))
+        {
+            Debug.LogWarning($"{nameof(SaveLoadCoordinator)}: loaded save data is invalid. Keeping scene defaults.", this);
+            return;
+        }
+
+        ApplyLoadedData(loadedData);
     }
 
     /// <summary>
@@ -136,33 +171,6 @@ public class SaveLoadCoordinator : MonoBehaviour
             this);
 
         return true;
-    }
-
-    /// <summary>
-    /// MainScene 진입 직후 한 번만 저장 파일을 읽어 적용
-    /// 저장 파일이 없거나 손상된 경우에는 scene/Inspector 기본값을 그대로 유지
-    /// </summary>
-    private void TryApplyInitialLoad()
-    {
-        if (!enabled || _hasTriedInitialLoad)
-        {
-            return;
-        }
-
-        _hasTriedInitialLoad = true;
-
-        if (!_saveService.TryLoad(out SaveData loadedData))
-        {
-            return;
-        }
-
-        if (!IsLoadedDataValid(loadedData))
-        {
-            Debug.LogWarning($"{nameof(SaveLoadCoordinator)}: loaded save data is invalid. Keeping scene defaults.", this);
-            return;
-        }
-
-        ApplyLoadedData(loadedData);
     }
 
     /// <summary>
