@@ -1038,6 +1038,9 @@ PrefabInstance:
       addedObject: {fileID: 1336485912914864545}
     - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
       insertIndex: -1
+      addedObject: {fileID: 1259506191009261969}
+    - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
+      insertIndex: -1
       addedObject: {fileID: 7096563381688032256}
     - targetCorrespondingSourceObject: {fileID: 354350443408783854, guid: 094cd1418e634464ebab9c4a1fdcbde4, type: 3}
       insertIndex: -1
@@ -1101,6 +1104,26 @@ MonoBehaviour:
   armorPartsRoot: {fileID: 1578198009604154079}
   facePartsRoot: {fileID: 1578198008325133401}
   showHelmet: 1
+--- !u!114 &1259506191009261969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8870903137881584759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa6f3f6338958b64d8858d558e8225bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WorldSelectionController
+  mainCamera: {fileID: 0}
+  informationPanelPresenter: {fileID: 0}
+  playerClickMove: {fileID: 0}
+  playerHarvestController: {fileID: 0}
+  selectionMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  maxRayDistance: 500
 --- !u!114 &7096563381688032256
 MonoBehaviour:
   m_ObjectHideFlags: 0

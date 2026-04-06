@@ -16,6 +16,7 @@ public class SaveLoadCoordinator : MonoBehaviour
     [SerializeField] private PlayerHarvestController harvestController;
     [SerializeField] private TMP_Text saveStatusText;
     [SerializeField] private GuardEncounterController guardEncounterController;
+    [SerializeField] private InformationPanelPresenter informationPanelPresenter;
 
     [Header("Save")]
     [SerializeField] private string saveFileName = "save-slot.json";
@@ -123,6 +124,8 @@ public class SaveLoadCoordinator : MonoBehaviour
         {
             return false;
         }
+
+        informationPanelPresenter?.ClearSelection();
 
         ShowSaveCompletedMessage();
 
