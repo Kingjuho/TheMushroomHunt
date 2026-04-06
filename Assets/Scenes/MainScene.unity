@@ -509,7 +509,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 51005c016f57c9a4c97d9bd2c87ca9fb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -23.5
+      value: -22.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 51005c016f57c9a4c97d9bd2c87ca9fb, type: 3}
       propertyPath: m_LocalRotation.w
@@ -16110,7 +16110,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 51005c016f57c9a4c97d9bd2c87ca9fb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -28.5
+      value: -27.5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 51005c016f57c9a4c97d9bd2c87ca9fb, type: 3}
       propertyPath: m_LocalRotation.w
@@ -30199,6 +30199,7 @@ Transform:
   - {fileID: 1672987018}
   - {fileID: 263278389}
   - {fileID: 433779210}
+  - {fileID: 2061429283}
   m_Father: {fileID: 2097168727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1390650905
@@ -30861,6 +30862,10 @@ PrefabInstance:
       propertyPath: saveStatusText
       value: 
       objectReference: {fileID: 1335959440}
+    - target: {fileID: 8153583878165700085, guid: ba7b5da508bb9ec47949f06da15478bb, type: 3}
+      propertyPath: guardEncounterController
+      value: 
+      objectReference: {fileID: 263278390}
     - target: {fileID: 8870903137881584759, guid: ba7b5da508bb9ec47949f06da15478bb, type: 3}
       propertyPath: m_Name
       value: Player
@@ -33889,7 +33894,7 @@ Transform:
   m_GameObject: {fileID: 1577022529}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 21, y: 0.5, z: -41}
+  m_LocalPosition: {x: 17.5, y: 0.5, z: -29}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -33955,7 +33960,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 20, y: 1, z: 20}
+  m_Size: {x: 30, y: 1, z: 5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &1580995368
 PrefabInstance:
@@ -35756,6 +35761,10 @@ PrefabInstance:
     - target: {fileID: 3321241980397903742, guid: 9b652153076affc4f9a542061b8b0791, type: 3}
       propertyPath: m_Name
       value: Guard
+      objectReference: {fileID: 0}
+    - target: {fileID: 3321241980397903742, guid: 9b652153076affc4f9a542061b8b0791, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6529061537382603789, guid: 9b652153076affc4f9a542061b8b0791, type: 3}
       propertyPath: m_LocalPosition.x
@@ -42417,11 +42426,11 @@ Transform:
   m_GameObject: {fileID: 2061429282}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 20, y: 0, z: -38}
+  m_LocalPosition: {x: 20, y: 0, z: -39}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2118882009}
+  m_Father: {fileID: 1389847756}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2071444260
 PrefabInstance:
@@ -42910,8 +42919,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uACBD\uBE44\uC6D0\uC5D0\uAC8C \uBD99\uC7A1\uD614\uC2B5\uB2C8\uB2E4.\n\uC18C\uC9C0\uAE08\uC758
-    \uC808\uBC18\uC744 \uB1CC\uBB3C\uB85C \uBE7C\uC557\uACBC\uC2B5\uB2C8\uB2E4."
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e557c818a84224a45b0361886dcf8b7f, type: 2}
   m_sharedMaterial: {fileID: -6160415876933306117, guid: e557c818a84224a45b0361886dcf8b7f, type: 2}
@@ -43747,7 +43755,6 @@ Transform:
   - {fileID: 1177052670}
   - {fileID: 1577022530}
   - {fileID: 1323600509}
-  - {fileID: 2061429283}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2122438462
