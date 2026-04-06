@@ -5867,6 +5867,7 @@ MonoBehaviour:
   playerClickMove: {fileID: 1429080694}
   playerHarvestController: {fileID: 1429080697}
   playerGoldWallet: {fileID: 1429080696}
+  saveLoadCoordinator: {fileID: 1429080698}
   guardChaseController: {fileID: 1672987019}
   guardSpawnPoint: {fileID: 433779210}
   baseReturnPoint: {fileID: 2061429283}

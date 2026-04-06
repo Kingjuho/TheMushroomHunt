@@ -117,7 +117,9 @@ public class SaveLoadCoordinator : MonoBehaviour
             playerPosition = playerTransform.position,
             attackPower = harvestController.AttackPower,
             attacksPerSecond = harvestController.AttacksPerSecond,
-            moveSpeed = clickMove.CurrentMoveSpeed
+            moveSpeed = clickMove.CurrentMoveSpeed,
+            attackPowerUpgradeCount = harvestController.AttackPowerUpgradeCount,
+            attackSpeedUpgradeCount = harvestController.AttackSpeedUpgradeCount
         };
 
         if (!_saveService.TrySave(saveData))
@@ -187,7 +189,19 @@ public class SaveLoadCoordinator : MonoBehaviour
     private void ApplyLoadedData(SaveData loadedData)
     {
         goldWallet.TrySetGold(loadedData.gold);
-        harvestController.TrySetCombatStats(loadedData.attackPower, loadedData.attacksPerSecond);
+
+        bool appliedCombatStats = harvestController.TrySetCombatStats(
+            loadedData.attackPower,
+            loadedData.attacksPerSecond,
+            loadedData.attackPowerUpgradeCount,
+            loadedData.attackSpeedUpgradeCount);
+
+        if (!appliedCombatStats)
+        {
+            Debug.LogWarning(
+                $"{nameof(SaveLoadCoordinator)}: failed to apply saved combat progression. Keeping current scene defaults.",
+                this);
+        }
 
         if (!clickMove.TrySetMoveSpeed(loadedData.moveSpeed))
         {
@@ -252,7 +266,9 @@ public class SaveLoadCoordinator : MonoBehaviour
             && loadedData.gold >= 0
             && loadedData.attackPower > 0
             && loadedData.attacksPerSecond > 0f
-            && loadedData.moveSpeed > 0f;
+            && loadedData.moveSpeed > 0f
+            && loadedData.attackPowerUpgradeCount >= 0
+            && loadedData.attackSpeedUpgradeCount >= 0;
     }
 
     /// <summary>

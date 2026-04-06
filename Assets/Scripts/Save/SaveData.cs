@@ -13,4 +13,6 @@ public class SaveData
     public int attackPower;             // 최종 공격력
     public float attacksPerSecond;      // 최종 공격속도
     public float moveSpeed;             // 최종 이동속도(NavMeshAgent 기준)
+    public int attackPowerUpgradeCount; // 공격력 업그레이드 횟수
+    public int attackSpeedUpgradeCount; // 공격속도 업그레이드 횟수
 }

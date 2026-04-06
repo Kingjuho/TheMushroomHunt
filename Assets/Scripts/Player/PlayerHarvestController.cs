@@ -10,9 +10,19 @@ public class PlayerHarvestController : MonoBehaviour
     [SerializeField] private PlayerGoldWallet goldWallet;
 
     [Header("Combat")]
-    [SerializeField] private int attackPower = 10;              // 공격력
-    [SerializeField] private float attacksPerSecond = 1.0f;     // 공격 속도
-    [SerializeField] private float attackRotationSpeed = 720f;  // 회전 속도
+    [SerializeField] private int attackPower = 10;                  // 공격력
+    [SerializeField] private float attacksPerSecond = 1.0f;         // 공격 속도
+    [SerializeField] private float attackRotationSpeed = 720f;      // 회전 속도
+
+    [Header("Upgrade")]
+    private const int AttackPowerUpgradeCostMultiplier = 100;       // 공격력 강화 1회당 비용 증가량
+    private const int AttackSpeedUpgradeCostMultiplier = 150;       // 공격속도 강화 1회당 비용 증가량
+
+    private int _attackPowerUpgradeCount;                           // 현재 세이브파일의 공격력 강화 횟수
+    private int _attackSpeedUpgradeCount;                           // 현재 세이브파일의 공격속도 강화 횟수
+    
+    public int AttackPowerUpgradeCount => _attackPowerUpgradeCount;
+    public int AttackSpeedUpgradeCount => _attackSpeedUpgradeCount;
 
     [Header("Debug")]
     // 현재 상태
@@ -104,6 +114,7 @@ public class PlayerHarvestController : MonoBehaviour
         }
 
         attackPower += amount;
+        _attackPowerUpgradeCount++;
         CombatStatsChanged?.Invoke();
     }
 
@@ -120,9 +131,22 @@ public class PlayerHarvestController : MonoBehaviour
 
         attacksPerSecond += amount;
         attacksPerSecond = Mathf.Max(0.01f, attacksPerSecond);
+        _attackSpeedUpgradeCount++;
 
         ApplyCurrentAttackAnimationSpeed();
         CombatStatsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// 공격력 강화 / 공격속도 강화 UI가 다음 업그레이드 비용을 표시할 때 호출
+    /// </summary>
+    public int GetNextAttackPowerUpgradeCost()
+    {
+        return AttackPowerUpgradeCostMultiplier * (_attackPowerUpgradeCount + 1);
+    }
+    public int GetNextAttackSpeedUpgradeCost()
+    {
+        return AttackSpeedUpgradeCostMultiplier * (_attackSpeedUpgradeCount + 1);
     }
 
     /// <summary>
@@ -474,6 +498,21 @@ public class PlayerHarvestController : MonoBehaviour
     /// </summary>
     public bool TrySetCombatStats(int newAttackPower, float newAttacksPerSecond, bool notifyListeners = true)
     {
+        return TrySetCombatStats(
+            newAttackPower,
+            newAttacksPerSecond,
+            0,
+            0,
+            notifyListeners);
+    }
+
+    public bool TrySetCombatStats(
+        int newAttackPower,
+        float newAttacksPerSecond,
+        int newAttackPowerUpgradeCount,
+        int newAttackSpeedUpgradeCount,
+        bool notifyListeners = true)
+    {
         if (newAttackPower <= 0)
         {
             Debug.LogWarning($"{nameof(PlayerHarvestController)}: attack power must be greater than 0.", this);
@@ -486,8 +525,22 @@ public class PlayerHarvestController : MonoBehaviour
             return false;
         }
 
+        if (newAttackPowerUpgradeCount < 0)
+        {
+            Debug.LogWarning($"{nameof(PlayerHarvestController)}: attackPowerUpgradeCount must be 0 or greater.", this);
+            return false;
+        }
+
+        if (newAttackSpeedUpgradeCount < 0)
+        {
+            Debug.LogWarning($"{nameof(PlayerHarvestController)}: attackSpeedUpgradeCount must be 0 or greater.", this);
+            return false;
+        }
+
         attackPower = newAttackPower;
         attacksPerSecond = Mathf.Max(0.01f, newAttacksPerSecond);
+        _attackPowerUpgradeCount = newAttackPowerUpgradeCount;
+        _attackSpeedUpgradeCount = newAttackSpeedUpgradeCount;
 
         ApplyCurrentAttackAnimationSpeed();
 

@@ -11,6 +11,7 @@ public class GuardEncounterController : MonoBehaviour
     [SerializeField] private PlayerClickMove playerClickMove;
     [SerializeField] private PlayerHarvestController playerHarvestController;
     [SerializeField] private PlayerGoldWallet playerGoldWallet;
+    [SerializeField] private SaveLoadCoordinator saveLoadCoordinator;
 
     [Header("Guard References")]
     [SerializeField] private GuardChaseController guardChaseController;
@@ -44,6 +45,11 @@ public class GuardEncounterController : MonoBehaviour
         }
 
         _remainingSpawnDelay = guardSpawnDelaySeconds;
+
+        if (saveLoadCoordinator == null && playerClickMove != null)
+        {
+            saveLoadCoordinator = playerClickMove.GetComponent<SaveLoadCoordinator>();
+        }
 
         if (!ValidateReferences())
         {
@@ -165,18 +171,20 @@ public class GuardEncounterController : MonoBehaviour
             return;
         }
 
-        // 접촉 중복 보고가 들어와도 벌금/Warp가 한 번만 적용되도록 먼저 경비원 상태를 닫음
         _isGuardActive = false;
+
+        bool returnedToBase = ApplyGuardPenaltyAndReturnToBase();
 
         guardChaseController.ResetToSpawnAndDisable(
             guardSpawnPoint.position,
             guardSpawnPoint.rotation);
 
-        ApplyGuardPenaltyAndReturnToBase();
         ShowGuardStatus(guardCaughtMessage);
 
         _isPlayerInsideIslandZone = false;
         _remainingSpawnDelay = guardSpawnDelaySeconds;
+
+        TryAutoSaveAfterGuardPenalty(returnedToBase);
     }
 
     /// <summary>
@@ -226,7 +234,7 @@ public class GuardEncounterController : MonoBehaviour
         ShowGuardStatus(guardSpawnedMessage);
     }
 
-    private void ApplyGuardPenaltyAndReturnToBase()
+    private bool ApplyGuardPenaltyAndReturnToBase()
     {
         int penaltyGoldAmount = playerGoldWallet.CurrentGold / 2;
 
@@ -235,14 +243,46 @@ public class GuardEncounterController : MonoBehaviour
             playerGoldWallet.TrySpendGold(penaltyGoldAmount);
         }
 
-        // Warp 전에 채집/공격/이동 문맥을 먼저 끊어 텔레포트 직후 상태 꼬임을 막음
         playerHarvestController.ForceCancelHarvest(true);
         playerClickMove.ResetMovementState();
 
-        if (!playerClickMove.TryWarpToPosition(baseReturnPoint.position, baseReturnWarpSampleDistance))
+        bool returnedToBase = playerClickMove.TryWarpToPosition(
+            baseReturnPoint.position,
+            baseReturnWarpSampleDistance);
+
+        if (!returnedToBase)
         {
             Debug.LogWarning(
                 $"{nameof(GuardEncounterController)}: failed to warp player to base return point. Check NavMesh placement.",
+                this);
+        }
+
+        return returnedToBase;
+    }
+
+    private void TryAutoSaveAfterGuardPenalty(bool returnedToBase)
+    {
+        // 가정: Guard 패널티 상태가 "확정"된 시점을 거점 Warp 성공 직후로 본다.
+        if (!returnedToBase)
+        {
+            Debug.LogWarning(
+                $"{nameof(GuardEncounterController)}: guard penalty auto save skipped because return warp did not complete.",
+                this);
+            return;
+        }
+
+        if (saveLoadCoordinator == null)
+        {
+            Debug.LogWarning(
+                $"{nameof(GuardEncounterController)}: saveLoadCoordinator reference is missing. Guard penalty auto save skipped.",
+                this);
+            return;
+        }
+
+        if (!saveLoadCoordinator.SaveNow())
+        {
+            Debug.LogWarning(
+                $"{nameof(GuardEncounterController)}: guard penalty auto save request failed.",
                 this);
         }
     }

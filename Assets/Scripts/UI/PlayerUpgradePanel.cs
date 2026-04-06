@@ -26,8 +26,6 @@ public class PlayerUpgradePanel : MonoBehaviour
     [Header("Balance")]
     [SerializeField] private int attackPowerUpgradeAmount = 1;             // 공격력 1회 강화량
     [SerializeField] private float attackSpeedUpgradeAmount = 0.05f;       // 공격속도 1회 강화량
-    [SerializeField] private int attackPowerUpgradeCost = 50;              // 공격력 강화 비용
-    [SerializeField] private int attackSpeedUpgradeCost = 50;              // 공격속도 강화 비용
 
     private void Awake()
     {
@@ -167,7 +165,7 @@ public class PlayerUpgradePanel : MonoBehaviour
     /// </summary>
     private bool IsAttackPowerUpgradeConfigured()
     {
-        return attackPowerUpgradeAmount > 0 && attackPowerUpgradeCost > 0;
+        return attackPowerUpgradeAmount > 0;
     }
 
     /// <summary>
@@ -176,7 +174,7 @@ public class PlayerUpgradePanel : MonoBehaviour
     /// </summary>
     private bool IsAttackSpeedUpgradeConfigured()
     {
-        return attackSpeedUpgradeAmount > 0f && attackSpeedUpgradeCost > 0;
+        return attackSpeedUpgradeAmount > 0f;
     }
 
     /// <summary>
@@ -186,7 +184,7 @@ public class PlayerUpgradePanel : MonoBehaviour
     {
         return HasAllRequiredReferences()
             && IsAttackPowerUpgradeConfigured()
-            && goldWallet.CurrentGold >= attackPowerUpgradeCost;
+            && goldWallet.CurrentGold >= GetAttackPowerUpgradeCost();
     }
 
     /// <summary>
@@ -197,7 +195,7 @@ public class PlayerUpgradePanel : MonoBehaviour
     {
         return HasAllRequiredReferences()
             && IsAttackSpeedUpgradeConfigured()
-            && goldWallet.CurrentGold >= attackSpeedUpgradeCost;
+            && goldWallet.CurrentGold >= GetAttackSpeedUpgradeCost();
     }
 
     /// <summary>
@@ -219,6 +217,7 @@ public class PlayerUpgradePanel : MonoBehaviour
         if (!HasAllRequiredReferences()) return;
 
         RefreshStats();
+        RefreshCosts();
         RefreshButtons();
     }
 
@@ -246,7 +245,7 @@ public class PlayerUpgradePanel : MonoBehaviour
             return;
         }
 
-        if (!goldWallet.TrySpendGold(attackPowerUpgradeCost))
+        if (!goldWallet.TrySpendGold(GetAttackPowerUpgradeCost()))
             return;
 
         harvestController.AddAttackPower(attackPowerUpgradeAmount);
@@ -268,7 +267,7 @@ public class PlayerUpgradePanel : MonoBehaviour
             return;
         }
 
-        if (!goldWallet.TrySpendGold(attackSpeedUpgradeCost))
+        if (!goldWallet.TrySpendGold(GetAttackSpeedUpgradeCost()))
             return;
 
         harvestController.AddAttackSpeed(attackSpeedUpgradeAmount);
@@ -322,13 +321,12 @@ public class PlayerUpgradePanel : MonoBehaviour
     /// </summary>
     private void RefreshCosts()
     {
-        // 버튼 상태뿐 아니라 비용 텍스트도 같은 유효성 기준으로 표시
         attackPowerCostText.text = IsAttackPowerUpgradeConfigured()
-            ? $"{attackPowerUpgradeCost}G"
+            ? $"{GetAttackPowerUpgradeCost()}G"
             : "설정 오류";
 
         attackSpeedCostText.text = IsAttackSpeedUpgradeConfigured()
-            ? $"{attackSpeedUpgradeCost}G"
+            ? $"{GetAttackSpeedUpgradeCost()}G"
             : "설정 오류";
     }
 
@@ -340,5 +338,17 @@ public class PlayerUpgradePanel : MonoBehaviour
         // 실제 구매 로직과 같은 조건식 사용
         attackPowerUpgradeButton.interactable = CanPurchaseAttackPowerUpgrade();
         attackSpeedUpgradeButton.interactable = CanPurchaseAttackSpeedUpgrade();
+    }
+
+    /// <summary>
+    /// 공격력 강화 / 공격속도 강화 UI가 다음 업그레이드 비용을 표시할 때 호출
+    /// </summary>
+    private int GetAttackPowerUpgradeCost()
+    {
+        return harvestController.GetNextAttackPowerUpgradeCost();
+    }
+    private int GetAttackSpeedUpgradeCost()
+    {
+        return harvestController.GetNextAttackSpeedUpgradeCost();
     }
 }

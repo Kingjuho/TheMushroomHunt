@@ -138,6 +138,18 @@ public sealed class LocalJsonSaveService
             return false;
         }
 
+        if (!TryReadIntField(json, "attackPowerUpgradeCount", out int attackPowerUpgradeCount) || attackPowerUpgradeCount < 0)
+        {
+            validationError = "save file is missing or has invalid field 'attackPowerUpgradeCount'.";
+            return false;
+        }
+
+        if (!TryReadIntField(json, "attackSpeedUpgradeCount", out int attackSpeedUpgradeCount) || attackSpeedUpgradeCount < 0)
+        {
+            validationError = "save file is missing or has invalid field 'attackSpeedUpgradeCount'.";
+            return false;
+        }
+
         if (!TryExtractObjectBody(json, "playerPosition", out string playerPositionBody))
         {
             validationError = "save file is missing required object 'playerPosition'.";
