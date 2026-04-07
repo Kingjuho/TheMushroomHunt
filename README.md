@@ -39,15 +39,24 @@
 ### 애니메이션
 - Mixamo FBX
 ### 사운드
-- Music by <a href="https://pixabay.com/users/geoffharvey-9096471/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=386992">Geoff Harvey</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=386992">Pixabay</a>
+- [Music by Geoff Harvey from Pixabay](https://pixabay.com/music/cartoons-little-creatures-cute-theme-386992/)
   - 위치: \Assets\ThirdParty\Sounds\BGM_TitleScene.mp3
-  - 용도: 타이틀 씬에서 재생
-- Music by <a href="https://pixabay.com/users/music_for_video-22579021/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=115485">music_for_video</a> from <a href="https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=115485">Pixabay</a>
+  - 용도: 타이틀 씬에서 재생(SoundManager - BGM - Title Scene)
+- [Music by music_for_video from Pixabay](https://pixabay.com/music/happy-childrens-tunes-happy-whistling-ukulele-115485/)
   - 위치: \Assets\ThirdParty\Sounds\BGM_MainScene1.mp3
-  - 용도: 메인 씬에서 재생
-- Music by <a href="https://pixabay.com/users/cyberwave-orchestra-23801316/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=248801">Cyberwave Orchestra</a> from <a href="https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=248801">Pixabay</a>
+  - 용도: 메인 씬에서 재생(SoundManager - BGM - Main Scene)
+- [Music by Cyberwave Orchestra from Pixabay](https://pixabay.com/music/upbeat-sneaky-spy-quirky-and-fun-music-248801/)
   - 위치: \Assets\ThirdParty\Sounds\BGM_Guard.mp3
-  - 용도: 경비원 스폰 시 재생
+  - 용도: 경비원 스폰 시 재생(SoundManager - BGM - Guard)
+- [Sound Effect by freesound_community from Pixabay](https://pixabay.com/sound-effects/film-special-effects-chopping-wood-96709/)
+  - 위치: \Assets\ThirdParty\Sounds\SFX_Hit.mp3
+  - 용도: 버섯 타격 시 재생(SoundManager - SFX - Mushroom Hit)
+- [Sound Effect by Lumora Studios from Pixabay](https://pixabay.com/sound-effects/film-special-effects-video-game-coin-pickup-sfx-319169/)
+  - 위치: \Assets\ThirdParty\Sounds\SFX_AddGold.mp3
+  - 용도: 버섯 채집 완료 시 재생(SoundManager - SFX - Mushroom Harvest Complete)
+- [Sound Effect by alan santos from Pixabay](https://pixabay.com/sound-effects/film-special-effects-warning-notification-call-184996/)
+  - 위치: \Assets\ThirdParty\Sounds\SFX_Warning.mp3
+  - 용도: 경비원 스폰 시 재생(SoundManager - SFX - Guard Siren)
 ### 폰트
 - [배달의 민족 주아체](http://font.woowahan.com/jua/)
   - 위치: \Assets\ThirdParty\Fonts
