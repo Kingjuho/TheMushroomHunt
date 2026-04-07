@@ -184,6 +184,7 @@ public class GuardEncounterController : MonoBehaviour
         _isPlayerInsideIslandZone = false;
         _remainingSpawnDelay = guardSpawnDelaySeconds;
 
+        ResumeMainSceneBgm();
         TryAutoSaveAfterGuardPenalty(returnedToBase);
     }
 
@@ -205,6 +206,8 @@ public class GuardEncounterController : MonoBehaviour
         guardChaseController.ResetToSpawnAndDisable(
             guardSpawnPoint.position,
             guardSpawnPoint.rotation);
+
+        ResumeMainSceneBgm();
     }
 
     private void SpawnGuard()
@@ -231,6 +234,10 @@ public class GuardEncounterController : MonoBehaviour
         }
 
         _isGuardActive = true;
+
+        SoundManager.Instance?.PlaySfx(SfxId.GuardSiren);
+        SoundManager.Instance?.PlayBgm(BgmId.Guard);
+
         ShowGuardStatus(guardSpawnedMessage);
     }
 
@@ -300,6 +307,13 @@ public class GuardEncounterController : MonoBehaviour
         guardChaseController.ResetToSpawnAndDisable(
             guardSpawnPoint.position,
             guardSpawnPoint.rotation);
+
+        ResumeMainSceneBgm();
+    }
+
+    private void ResumeMainSceneBgm()
+    {
+        SoundManager.Instance?.PlayBgm(BgmId.MainScene);
     }
 
     private bool IsTrackedPlayer(PlayerClickMove player)

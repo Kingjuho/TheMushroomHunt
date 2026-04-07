@@ -365,6 +365,8 @@ public class PlayerHarvestController : MonoBehaviour
         int rewardGold = _currentHarvestTarget.RewardGold;
         bool wasHarvested = _currentHarvestTarget.TryTakeDamage(attackPower);
 
+        SoundManager.Instance?.PlaySfx(SfxId.MushroomHit);
+
         Debug.Log(
             $"Hit mushroom: {_currentHarvestTarget.name}, " +
             $"damage: {attackPower}, " +
@@ -379,6 +381,8 @@ public class PlayerHarvestController : MonoBehaviour
         {
             goldWallet.AddGold(rewardGold);
         }
+
+        SoundManager.Instance?.PlaySfx(SfxId.MushroomHarvestComplete);
 
         Debug.Log(
             $"Harvest finished: {_currentHarvestTarget.name}, " +
