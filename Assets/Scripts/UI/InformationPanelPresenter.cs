@@ -12,6 +12,9 @@ public class InformationPanelPresenter : MonoBehaviour
     [SerializeField] private TMP_Text titleText;
     [SerializeField] private TMP_Text bodyText;
 
+    [Header("World Selection")]
+    [SerializeField] private SelectionRingPresenter selectionRingPresenter;
+
     private SelectionType _selectionType = SelectionType.None;
     private InformationSign _selectedSign;
     private PlayerHarvestController _selectedPlayerHarvestController;
@@ -67,6 +70,10 @@ public class InformationPanelPresenter : MonoBehaviour
     {
         switch (_selectionType)
         {
+            case SelectionType.Sign:
+                RefreshSignSelection();
+                break;
+
             case SelectionType.Player:
                 RefreshPlayerSelection();
                 break;
@@ -92,6 +99,8 @@ public class InformationPanelPresenter : MonoBehaviour
         _selectedMushroom = null;
 
         ApplyText(sign.DisplayTitle, sign.DisplayBody);
+
+        selectionRingPresenter?.ShowForNonPlayer(sign.transform);
     }
 
     public void ShowPlayer(PlayerHarvestController harvestController, PlayerClickMove clickMove)
@@ -109,6 +118,8 @@ public class InformationPanelPresenter : MonoBehaviour
         _selectedMushroom = null;
 
         RefreshPlayerSelection();
+
+        selectionRingPresenter?.ShowForPlayer(clickMove.transform);
     }
 
     public void ShowMushroom(Mushroom mushroom)
@@ -126,6 +137,8 @@ public class InformationPanelPresenter : MonoBehaviour
         _selectedMushroom = mushroom;
 
         RefreshMushroomSelection();
+
+        selectionRingPresenter?.ShowForNonPlayer(mushroom.transform);
     }
 
     public void ClearSelection()
@@ -137,11 +150,15 @@ public class InformationPanelPresenter : MonoBehaviour
         _selectedMushroom = null;
 
         ApplyText(string.Empty, string.Empty);
+
+        selectionRingPresenter?.Clear();
     }
 
     private void RefreshPlayerSelection()
     {
-        if (_selectedPlayerHarvestController == null || _selectedPlayerClickMove == null)
+        if (_selectedPlayerHarvestController == null
+            || _selectedPlayerClickMove == null
+            || !_selectedPlayerClickMove.gameObject.activeInHierarchy)
         {
             ClearSelection();
             return;
@@ -156,7 +173,9 @@ public class InformationPanelPresenter : MonoBehaviour
 
     private void RefreshMushroomSelection()
     {
-        if (_selectedMushroom == null || !_selectedMushroom.IsHarvestable)
+        if (_selectedMushroom == null
+            || !_selectedMushroom.gameObject.activeInHierarchy
+            || !_selectedMushroom.IsHarvestable)
         {
             ClearSelection();
             return;
@@ -166,6 +185,17 @@ public class InformationPanelPresenter : MonoBehaviour
             _selectedMushroom.DisplayName,
             $"HP: {_selectedMushroom.CurrentHp} / {_selectedMushroom.MaxHp}\n" +
             $"보상 골드: {_selectedMushroom.RewardGold}");
+    }
+
+    private void RefreshSignSelection()
+    {
+        if (_selectedSign == null || !_selectedSign.gameObject.activeInHierarchy)
+        {
+            ClearSelection();
+            return;
+        }
+
+        ApplyText(_selectedSign.DisplayTitle, _selectedSign.DisplayBody);
     }
 
     private void ApplyText(string title, string body)
