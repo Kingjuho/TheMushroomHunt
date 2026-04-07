@@ -2,7 +2,6 @@
 
 /// <summary>
 /// 월드 공간의 단일 선택 고리를 재사용해 현재 선택 대상을 시각적으로 강조
-/// 대상 자식으로 붙지 않고 bounds 기반 바닥 위치를 매 프레임 다시 계산
 /// </summary>
 [RequireComponent(typeof(LineRenderer))]
 public class SelectionRingPresenter : MonoBehaviour
@@ -22,7 +21,7 @@ public class SelectionRingPresenter : MonoBehaviour
     [SerializeField] private Color nonPlayerColor = new Color(1.0f, 0.9f, 0.2f, 0.95f);
     [SerializeField] private float lineWidth = 0.05f;
     [SerializeField] private float yOffset = 0.25f;
-    [SerializeField] private float radiusPadding = 0.3f;
+    [SerializeField] private float radiusPadding = 0.2f;
     [SerializeField] private float minRadius = 0.3f;
     [SerializeField] private float maxRadius = 1.8f;
     [SerializeField] private int segmentCount = 40;
@@ -33,6 +32,10 @@ public class SelectionRingPresenter : MonoBehaviour
     private MaterialPropertyBlock _propertyBlock;
     private Transform _target;
     private RingTargetType _targetType = RingTargetType.None;
+    private Mushroom _targetMushroom;
+    private Vector3 _cachedCenter;
+    private float _cachedRadius;
+    private bool _followTargetPosition;
 
     private void Awake()
     {
@@ -65,14 +68,22 @@ public class SelectionRingPresenter : MonoBehaviour
             return;
         }
 
-        if (!TryCalculateRingPlacement(_target, out Vector3 center, out float radius))
+        if (!IsCurrentTargetValid())
         {
             Clear();
             return;
         }
 
+        Vector3 center = _cachedCenter;
+
+        // 플레이어만 위치를 따라가고, 반지름은 최초 선택 시 계산값을 유지
+        if (_followTargetPosition)
+        {
+            center = new Vector3(_target.position.x, _target.position.y + yOffset, _target.position.z);
+        }
+
         ApplyColor(_targetType == RingTargetType.Player ? playerColor : nonPlayerColor);
-        DrawCircle(center, radius);
+        DrawCircle(center, _cachedRadius);
 
         if (!lineRenderer.enabled)
         {
@@ -93,7 +104,11 @@ public class SelectionRingPresenter : MonoBehaviour
     public void Clear()
     {
         _target = null;
+        _targetMushroom = null;
         _targetType = RingTargetType.None;
+        _cachedCenter = default;
+        _cachedRadius = minRadius;
+        _followTargetPosition = false;
 
         if (lineRenderer != null)
         {
@@ -110,8 +125,18 @@ public class SelectionRingPresenter : MonoBehaviour
             return;
         }
 
+        if (!TryCachePlacement(target, targetType, out Vector3 center, out float radius, out Mushroom mushroom, out bool followTargetPosition))
+        {
+            Clear();
+            return;
+        }
+
         _target = target;
         _targetType = targetType;
+        _targetMushroom = mushroom;
+        _cachedCenter = center;
+        _cachedRadius = radius;
+        _followTargetPosition = followTargetPosition;
     }
 
     private void ConfigureRenderer()
@@ -139,10 +164,18 @@ public class SelectionRingPresenter : MonoBehaviour
         }
     }
 
-    private bool TryCalculateRingPlacement(Transform target, out Vector3 center, out float radius)
+    private bool TryCachePlacement(
+        Transform target,
+        RingTargetType targetType,
+        out Vector3 center,
+        out float radius,
+        out Mushroom mushroom,
+        out bool followTargetPosition)
     {
         center = default;
         radius = minRadius;
+        mushroom = null;
+        followTargetPosition = false;
 
         if (target == null || !target.gameObject.activeInHierarchy)
         {
@@ -151,11 +184,42 @@ public class SelectionRingPresenter : MonoBehaviour
 
         Bounds bounds;
 
-        if (_targetType == RingTargetType.Player && TryGetStablePlayerBounds(target, out bounds))
+        if (targetType == RingTargetType.Player)
         {
+            if (!TryGetStablePlayerBounds(target, out bounds))
+            {
+                return false;
+            }
+
             center = new Vector3(target.position.x, target.position.y + yOffset, target.position.z);
             radius = Mathf.Clamp(
                 Mathf.Max(bounds.extents.x, bounds.extents.z) + radiusPadding,
+                minRadius,
+                maxRadius);
+
+            followTargetPosition = true;
+            return true;
+        }
+
+        mushroom = target.GetComponent<Mushroom>();
+
+        // 버섯은 피격 반응으로 visualRoot가 흔들리므로
+        // Renderer bounds 대신 InteractionPosition / InteractionRadius를 캐싱
+        if (mushroom != null)
+        {
+            if (!mushroom.IsHarvestable)
+            {
+                return false;
+            }
+
+            Vector3 interactionPosition = mushroom.InteractionPosition;
+            center = new Vector3(
+                interactionPosition.x,
+                interactionPosition.y + yOffset,
+                interactionPosition.z);
+
+            radius = Mathf.Clamp(
+                mushroom.InteractionRadius + radiusPadding,
                 minRadius,
                 maxRadius);
 
@@ -172,6 +236,21 @@ public class SelectionRingPresenter : MonoBehaviour
             Mathf.Max(bounds.extents.x, bounds.extents.z) + radiusPadding,
             minRadius,
             maxRadius);
+
+        return true;
+    }
+
+    private bool IsCurrentTargetValid()
+    {
+        if (_target == null || !_target.gameObject.activeInHierarchy)
+        {
+            return false;
+        }
+
+        if (_targetMushroom != null && !_targetMushroom.IsHarvestable)
+        {
+            return false;
+        }
 
         return true;
     }

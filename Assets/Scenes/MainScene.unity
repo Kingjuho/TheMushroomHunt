@@ -30727,7 +30727,7 @@ MonoBehaviour:
   nonPlayerColor: {r: 1, g: 0.9, b: 0.2, a: 0.95}
   lineWidth: 0.05
   yOffset: 0.25
-  radiusPadding: 0.3
+  radiusPadding: 0.2
   minRadius: 0.3
   maxRadius: 1.8
   segmentCount: 40
